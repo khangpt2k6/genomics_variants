@@ -25,12 +25,6 @@ Galaxy API → VCF Parser → Annotation Services → PostgreSQL → Django API 
 pip install -r requirements.txt
 ```
 
-2. Set up environment variables:
-```bash
-cp .env.example .env
-# Edit .env with your database and API credentials
-```
-
 3. Run database migrations:
 ```bash
 python manage.py migrate
