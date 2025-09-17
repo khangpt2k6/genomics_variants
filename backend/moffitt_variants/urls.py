@@ -9,8 +9,8 @@ from variants import views as variant_views
 # API Router
 router = routers.DefaultRouter()
 router.register(r'variants', variant_views.VariantViewSet)
-router.register(r'annotations', variant_views.AnnotationViewSet)
 router.register(r'clinical-significance', variant_views.ClinicalSignificanceViewSet)
+router.register(r'annotations', variant_views.AnnotationViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
