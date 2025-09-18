@@ -5,6 +5,7 @@ from rest_framework.pagination import PageNumberPagination
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Q, Count, Avg
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 
 from .models import (
     AnnotationSource, AnnotationJob, VariantAnnotation, 
