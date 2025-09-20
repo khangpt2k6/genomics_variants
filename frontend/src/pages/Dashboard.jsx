@@ -37,8 +37,21 @@ const Dashboard = () => {
   });
 
   return (
-    <Box>
-      <Typography variant="h4" gutterBottom sx={{ mb: 3 }}>
+    <Box sx={{ background: 'transparent' }}>
+      <Typography 
+        variant="h4" 
+        gutterBottom 
+        sx={{ 
+          mb: 4,
+          color: '#ffffff',
+          fontWeight: 700,
+          textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
+          background: 'linear-gradient(135deg, #ffffff, #b0b0b0)',
+          backgroundClip: 'text',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+        }}
+      >
         Dashboard
       </Typography>
 
@@ -85,9 +98,33 @@ const Dashboard = () => {
       {/* Charts and Recent Data */}
       <Grid container spacing={3}>
         <Grid item xs={12} md={8}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
+          <Card
+            sx={{
+              background: 'rgba(255, 255, 255, 0.06)',
+              backdropFilter: 'blur(20px)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              borderRadius: 3,
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+              transition: 'all 0.3s ease',
+              '&:hover': {
+                background: 'rgba(255, 255, 255, 0.08)',
+                borderColor: 'rgba(255, 255, 255, 0.15)',
+                transform: 'translateY(-2px)',
+                boxShadow: '0 12px 48px rgba(0, 0, 0, 0.4)',
+              }
+            }}
+          >
+            <CardContent sx={{ p: 3 }}>
+              <Typography 
+                variant="h6" 
+                gutterBottom
+                sx={{
+                  color: '#ffffff',
+                  fontWeight: 600,
+                  textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
+                  mb: 3
+                }}
+              >
                 Variant Distribution
               </Typography>
               <VariantChart data={variantStats} loading={variantStatsLoading} />
@@ -96,9 +133,33 @@ const Dashboard = () => {
         </Grid>
         
         <Grid item xs={12} md={4}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
+          <Card
+            sx={{
+              background: 'rgba(255, 255, 255, 0.06)',
+              backdropFilter: 'blur(20px)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              borderRadius: 3,
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+              transition: 'all 0.3s ease',
+              '&:hover': {
+                background: 'rgba(255, 255, 255, 0.08)',
+                borderColor: 'rgba(255, 255, 255, 0.15)',
+                transform: 'translateY(-2px)',
+                boxShadow: '0 12px 48px rgba(0, 0, 0, 0.4)',
+              }
+            }}
+          >
+            <CardContent sx={{ p: 3 }}>
+              <Typography 
+                variant="h6" 
+                gutterBottom
+                sx={{
+                  color: '#ffffff',
+                  fontWeight: 600,
+                  textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
+                  mb: 3
+                }}
+              >
                 Recent Variants
               </Typography>
               <RecentVariants 

@@ -11,11 +11,20 @@ import VariantDetail from './pages/VariantDetail';
 
 function App() {
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh' }}>
+    <Box sx={{ 
+      display: 'flex', 
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0f0f0f 100%)',
+      backgroundAttachment: 'fixed'
+    }}>
       <Sidebar />
       <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
         <Navbar />
-        <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+        <Box component="main" sx={{ 
+          flexGrow: 1, 
+          p: 3,
+          background: 'transparent'
+        }}>
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/variants" element={<Variants />} />

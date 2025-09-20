@@ -40,45 +40,86 @@ const Sidebar = () => {
         '& .MuiDrawer-paper': {
           width: drawerWidth,
           boxSizing: 'border-box',
-          borderRight: '1px solid #e0e0e0',
+          background: 'rgba(255, 255, 255, 0.06)',
+          backdropFilter: 'blur(20px)',
+          borderRight: '1px solid rgba(255, 255, 255, 0.12)',
+          boxShadow: '8px 0 32px rgba(0, 0, 0, 0.3)',
         },
       }}
     >
       <Box sx={{ p: 2 }}>
-        <Typography variant="h6" sx={{ fontWeight: 600, color: 'primary.main' }}>
+        <Typography 
+          variant="h6" 
+          sx={{ 
+            fontWeight: 600, 
+            color: '#ffffff',
+            textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
+            mb: 0.5
+          }}
+        >
           Moffitt Cancer Center
         </Typography>
-        <Typography variant="body2" color="text.secondary">
+        <Typography 
+          variant="body2" 
+          sx={{ 
+            color: 'rgba(255, 255, 255, 0.7)',
+            fontSize: '0.75rem',
+            fontWeight: 400
+          }}
+        >
           Variant Interpretation Platform
         </Typography>
       </Box>
       
-      <Divider />
+      <Divider sx={{ borderColor: 'rgba(255, 255, 255, 0.12)' }} />
       
-      <List>
+      <List sx={{ px: 1, py: 2 }}>
         {menuItems.map((item) => (
-          <ListItem key={item.text} disablePadding>
+          <ListItem key={item.text} disablePadding sx={{ mb: 0.5 }}>
             <ListItemButton
               selected={location.pathname === item.path}
               onClick={() => navigate(item.path)}
               sx={{
+                borderRadius: 2,
+                mx: 0.5,
+                transition: 'all 0.3s ease',
                 '&.Mui-selected': {
-                  backgroundColor: 'primary.light',
-                  color: 'primary.contrastText',
+                  background: 'rgba(255, 255, 255, 0.15)',
+                  color: '#ffffff',
+                  backdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2)',
                   '&:hover': {
-                    backgroundColor: 'primary.main',
+                    background: 'rgba(255, 255, 255, 0.2)',
+                    transform: 'translateX(4px)'
                   },
                 },
+                '&:hover': {
+                  background: 'rgba(255, 255, 255, 0.08)',
+                  transform: 'translateX(2px)',
+                  color: '#ffffff'
+                },
+                color: location.pathname === item.path ? '#ffffff' : 'rgba(255, 255, 255, 0.8)'
               }}
             >
               <ListItemIcon
                 sx={{
-                  color: location.pathname === item.path ? 'primary.contrastText' : 'inherit',
+                  color: location.pathname === item.path ? '#ffffff' : 'rgba(255, 255, 255, 0.7)',
+                  minWidth: 40,
+                  transition: 'all 0.3s ease'
                 }}
               >
                 {item.icon}
               </ListItemIcon>
-              <ListItemText primary={item.text} />
+              <ListItemText 
+                primary={item.text}
+                sx={{
+                  '& .MuiListItemText-primary': {
+                    fontWeight: location.pathname === item.path ? 600 : 400,
+                    fontSize: '0.9rem'
+                  }
+                }}
+              />
             </ListItemButton>
           </ListItem>
         ))}
@@ -88,3 +129,4 @@ const Sidebar = () => {
 };
 
 export default Sidebar;
+
