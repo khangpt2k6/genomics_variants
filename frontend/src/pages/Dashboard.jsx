@@ -5,7 +5,6 @@ import {
   CardContent,
   Typography,
   Box,
-  Paper,
 } from '@mui/material';
 import {
   Science as ScienceIcon,
@@ -14,26 +13,42 @@ import {
   TrendingUp as TrendingUpIcon,
 } from '@mui/icons-material';
 import { useQuery } from '@tanstack/react-query';
+import PropTypes from 'prop-types';
+
 import { variantsApi } from '../services/variants';
 import { annotationsApi } from '../services/annotations';
 import StatCard from '../components/StatCard';
 import VariantChart from '../components/VariantChart';
 import RecentVariants from '../components/RecentVariants';
+import { 
+  QUERY_KEYS, 
+  THEME, 
+  PAGINATION 
+} from '../constants';
 
+/**
+ * Dashboard component displaying variant statistics and recent data.
+ * 
+ * This component shows key metrics, charts, and recent variants
+ * to provide an overview of the variant database.
+ */
 const Dashboard = () => {
   const { data: variantStats, isLoading: variantStatsLoading } = useQuery({
-    queryKey: ['variantStatistics'],
+    queryKey: [QUERY_KEYS.VARIANT_STATISTICS],
     queryFn: () => variantsApi.getStatistics()
   });
 
   const { data: annotationStats, isLoading: annotationStatsLoading } = useQuery({
-    queryKey: ['annotationStatistics'],
+    queryKey: [QUERY_KEYS.ANNOTATION_STATISTICS],
     queryFn: () => annotationsApi.getStatistics()
   });
 
   const { data: recentVariants, isLoading: recentVariantsLoading } = useQuery({
-    queryKey: ['recentVariants'],
-    queryFn: () => variantsApi.getVariants({ page_size: 5, ordering: '-created_at' })
+    queryKey: [QUERY_KEYS.RECENT_VARIANTS],
+    queryFn: () => variantsApi.getVariants({ 
+      page_size: 5, 
+      ordering: '-created_at' 
+    })
   });
 
   return (
@@ -43,10 +58,10 @@ const Dashboard = () => {
         gutterBottom 
         sx={{ 
           mb: 4,
-          color: '#ffffff',
+          color: THEME.COLORS.PRIMARY,
           fontWeight: 700,
-          textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
-          background: 'linear-gradient(135deg, #ffffff, #b0b0b0)',
+          textShadow: THEME.SHADOWS.TEXT,
+          background: THEME.GRADIENTS.TEXT,
           backgroundClip: 'text',
           WebkitBackgroundClip: 'text',
           WebkitTextFillColor: 'transparent',
@@ -100,17 +115,17 @@ const Dashboard = () => {
         <Grid item xs={12} md={8}>
           <Card
             sx={{
-              background: 'rgba(255, 255, 255, 0.06)',
-              backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
+              background: THEME.BACKDROP.OPACITY,
+              backdropFilter: THEME.BACKDROP.BLUR,
+              border: THEME.BORDERS.CARD,
               borderRadius: 3,
-              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
-              transition: 'all 0.3s ease',
+              boxShadow: THEME.SHADOWS.CARD,
+              transition: `all ${THEME.ANIMATION.NORMAL} ${THEME.ANIMATION.EASING}`,
               '&:hover': {
-                background: 'rgba(255, 255, 255, 0.08)',
-                borderColor: 'rgba(255, 255, 255, 0.15)',
+                background: THEME.BACKDROP.OPACITY_HOVER,
+                borderColor: THEME.BORDERS.CARD_HOVER,
                 transform: 'translateY(-2px)',
-                boxShadow: '0 12px 48px rgba(0, 0, 0, 0.4)',
+                boxShadow: THEME.SHADOWS.CARD_HOVER,
               }
             }}
           >
@@ -119,9 +134,9 @@ const Dashboard = () => {
                 variant="h6" 
                 gutterBottom
                 sx={{
-                  color: '#ffffff',
+                  color: THEME.COLORS.PRIMARY,
                   fontWeight: 600,
-                  textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
+                  textShadow: THEME.SHADOWS.TEXT,
                   mb: 3
                 }}
               >
@@ -135,17 +150,17 @@ const Dashboard = () => {
         <Grid item xs={12} md={4}>
           <Card
             sx={{
-              background: 'rgba(255, 255, 255, 0.06)',
-              backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
+              background: THEME.BACKDROP.OPACITY,
+              backdropFilter: THEME.BACKDROP.BLUR,
+              border: THEME.BORDERS.CARD,
               borderRadius: 3,
-              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
-              transition: 'all 0.3s ease',
+              boxShadow: THEME.SHADOWS.CARD,
+              transition: `all ${THEME.ANIMATION.NORMAL} ${THEME.ANIMATION.EASING}`,
               '&:hover': {
-                background: 'rgba(255, 255, 255, 0.08)',
-                borderColor: 'rgba(255, 255, 255, 0.15)',
+                background: THEME.BACKDROP.OPACITY_HOVER,
+                borderColor: THEME.BORDERS.CARD_HOVER,
                 transform: 'translateY(-2px)',
-                boxShadow: '0 12px 48px rgba(0, 0, 0, 0.4)',
+                boxShadow: THEME.SHADOWS.CARD_HOVER,
               }
             }}
           >
@@ -154,9 +169,9 @@ const Dashboard = () => {
                 variant="h6" 
                 gutterBottom
                 sx={{
-                  color: '#ffffff',
+                  color: THEME.COLORS.PRIMARY,
                   fontWeight: 600,
-                  textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
+                  textShadow: THEME.SHADOWS.TEXT,
                   mb: 3
                 }}
               >
@@ -173,5 +188,7 @@ const Dashboard = () => {
     </Box>
   );
 };
+
+Dashboard.propTypes = {};
 
 export default Dashboard;
