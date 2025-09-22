@@ -28,17 +28,14 @@ const StatCard = ({
     <Card 
       sx={{ 
         height: '100%',
-        background: 'rgba(255, 255, 255, 0.06)',
-        backdropFilter: 'blur(20px)',
-        border: '1px solid rgba(255, 255, 255, 0.1)',
+        background: (theme) => theme.palette.background.paper,
+        border: '1px solid rgba(0, 0, 0, 0.08)',
         borderRadius: 3,
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
-        transition: 'all 0.3s ease',
+        boxShadow: '0 4px 18px rgba(0, 0, 0, 0.08)',
+        transition: 'box-shadow 0.2s ease, transform 0.2s ease',
         '&:hover': {
-          background: 'rgba(255, 255, 255, 0.08)',
-          borderColor: 'rgba(255, 255, 255, 0.15)',
-          transform: 'translateY(-4px)',
-          boxShadow: '0 12px 48px rgba(0, 0, 0, 0.4)',
+          transform: 'translateY(-2px)',
+          boxShadow: '0 10px 28px rgba(0, 0, 0, 0.12)',
         }
       }}
     >
@@ -66,7 +63,7 @@ const StatCard = ({
             <Typography 
               variant="body2" 
               sx={{ 
-                color: 'rgba(255, 255, 255, 0.7)',
+                color: 'text.secondary',
                 fontWeight: 500,
                 mb: 1,
                 fontSize: '0.85rem',
@@ -93,12 +90,7 @@ const StatCard = ({
                 component="div" 
                 sx={{ 
                   fontWeight: 700,
-                  color: '#ffffff',
-                  textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
-                  background: `linear-gradient(135deg, #ffffff, ${colorMap[color]})`,
-                  backgroundClip: 'text',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
+                  color: 'text.primary'
                 }}
               >
                 {value.toLocaleString()}
@@ -108,7 +100,7 @@ const StatCard = ({
               <Typography 
                 variant="body2" 
                 sx={{ 
-                  color: 'rgba(255, 255, 255, 0.6)',
+                  color: 'text.secondary',
                   fontSize: '0.75rem',
                   mt: 0.5
                 }}

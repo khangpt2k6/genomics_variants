@@ -23,7 +23,8 @@ import RecentVariants from '../components/RecentVariants';
 import { 
   QUERY_KEYS, 
   THEME, 
-  PAGINATION 
+  PAGINATION,
+  ANIMATION
 } from '../constants';
 
 /**
@@ -120,7 +121,7 @@ const Dashboard = () => {
               border: THEME.BORDERS.CARD,
               borderRadius: 3,
               boxShadow: THEME.SHADOWS.CARD,
-              transition: `all ${THEME.ANIMATION.NORMAL} ${THEME.ANIMATION.EASING}`,
+              transition: `all ${ANIMATION.NORMAL} ${ANIMATION.EASING}`,
               '&:hover': {
                 background: THEME.BACKDROP.OPACITY_HOVER,
                 borderColor: THEME.BORDERS.CARD_HOVER,
@@ -155,7 +156,7 @@ const Dashboard = () => {
               border: THEME.BORDERS.CARD,
               borderRadius: 3,
               boxShadow: THEME.SHADOWS.CARD,
-              transition: `all ${THEME.ANIMATION.NORMAL} ${THEME.ANIMATION.EASING}`,
+              transition: `all ${ANIMATION.NORMAL} ${ANIMATION.EASING}`,
               '&:hover': {
                 background: THEME.BACKDROP.OPACITY_HOVER,
                 borderColor: THEME.BORDERS.CARD_HOVER,

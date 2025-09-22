@@ -40,10 +40,9 @@ const Sidebar = () => {
         '& .MuiDrawer-paper': {
           width: drawerWidth,
           boxSizing: 'border-box',
-          background: 'rgba(255, 255, 255, 0.06)',
-          backdropFilter: 'blur(20px)',
-          borderRight: '1px solid rgba(255, 255, 255, 0.12)',
-          boxShadow: '8px 0 32px rgba(0, 0, 0, 0.3)',
+          background: (theme) => theme.palette.background.paper,
+          borderRight: '1px solid rgba(0, 0, 0, 0.08)',
+          boxShadow: '8px 0 24px rgba(0, 0, 0, 0.06)',
         },
       }}
     >
@@ -52,8 +51,7 @@ const Sidebar = () => {
           variant="h6" 
           sx={{ 
             fontWeight: 600, 
-            color: '#ffffff',
-            textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
+            color: 'text.primary',
             mb: 0.5
           }}
         >
@@ -62,7 +60,7 @@ const Sidebar = () => {
         <Typography 
           variant="body2" 
           sx={{ 
-            color: 'rgba(255, 255, 255, 0.7)',
+            color: 'text.secondary',
             fontSize: '0.75rem',
             fontWeight: 400
           }}
@@ -71,7 +69,7 @@ const Sidebar = () => {
         </Typography>
       </Box>
       
-      <Divider sx={{ borderColor: 'rgba(255, 255, 255, 0.12)' }} />
+      <Divider sx={{ borderColor: 'rgba(0, 0, 0, 0.08)' }} />
       
       <List sx={{ px: 1, py: 2 }}>
         {menuItems.map((item) => (
@@ -84,27 +82,25 @@ const Sidebar = () => {
                 mx: 0.5,
                 transition: 'all 0.3s ease',
                 '&.Mui-selected': {
-                  background: 'rgba(255, 255, 255, 0.15)',
-                  color: '#ffffff',
-                  backdropFilter: 'blur(10px)',
-                  border: '1px solid rgba(255, 255, 255, 0.2)',
-                  boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2)',
+                  background: 'rgba(25, 118, 210, 0.08)',
+                  color: 'text.primary',
+                  border: '1px solid rgba(25, 118, 210, 0.2)',
                   '&:hover': {
-                    background: 'rgba(255, 255, 255, 0.2)',
+                    background: 'rgba(25, 118, 210, 0.12)',
                     transform: 'translateX(4px)'
                   },
                 },
                 '&:hover': {
-                  background: 'rgba(255, 255, 255, 0.08)',
+                  background: 'rgba(0, 0, 0, 0.04)',
                   transform: 'translateX(2px)',
-                  color: '#ffffff'
+                  color: 'text.primary'
                 },
-                color: location.pathname === item.path ? '#ffffff' : 'rgba(255, 255, 255, 0.8)'
+                color: location.pathname === item.path ? 'text.primary' : 'text.secondary'
               }}
             >
               <ListItemIcon
                 sx={{
-                  color: location.pathname === item.path ? '#ffffff' : 'rgba(255, 255, 255, 0.7)',
+                  color: location.pathname === item.path ? 'text.primary' : 'text.secondary',
                   minWidth: 40,
                   transition: 'all 0.3s ease'
                 }}
