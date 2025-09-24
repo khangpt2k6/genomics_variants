@@ -11,3 +11,4 @@ numpy==1.24.3
 pysam==0.21.0
 cyvcf2==0.30.22
 biopython==1.81
+Faker==24.11.0
