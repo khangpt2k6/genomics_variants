@@ -64,30 +64,40 @@ export const FREQUENCY_CONFIG = {
 
 export const THEME = {
   COLORS: {
-    PRIMARY: '#1976d2',
-    SECONDARY: '#dc004e',
-    SUCCESS: '#2e7d32',
-    ERROR: '#d32f2f',
-    WARNING: '#ed6c02',
-    INFO: '#0288d1',
+    PRIMARY: '#E91E63', // Pink primary
+    SECONDARY: '#9C27B0', // Purple secondary
+    SUCCESS: '#4CAF50',
+    ERROR: '#F44336',
+    WARNING: '#FF9800',
+    INFO: '#2196F3',
+    ACCENT: '#FF4081', // Bright pink accent
+    LIGHT_PINK: '#FCE4EC',
+    LIGHT_PURPLE: '#F3E5F5',
   },
   GRADIENTS: {
-    BACKGROUND: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0f0f0f 100%)',
-    TEXT: 'linear-gradient(135deg, #ffffff, #b0b0b0)',
+    BACKGROUND: 'linear-gradient(135deg, #FCE4EC 0%, #F3E5F5 25%, #E8EAF6 50%, #FFF3E0 75%, #F1F8E9 100%)',
+    PRIMARY: 'linear-gradient(135deg, #E91E63 0%, #9C27B0 100%)',
+    SECONDARY: 'linear-gradient(135deg, #FF4081 0%, #E91E63 100%)',
+    CARD: 'linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 187, 208, 0.1) 50%, rgba(156, 39, 176, 0.1) 100%)',
+    TEXT: 'linear-gradient(135deg, #E91E63, #9C27B0)',
+    HERO: 'linear-gradient(135deg, #FCE4EC 0%, #F3E5F5 50%, #E8EAF6 100%)',
   },
   SHADOWS: {
-    CARD: '0 8px 32px rgba(0, 0, 0, 0.3)',
-    CARD_HOVER: '0 12px 48px rgba(0, 0, 0, 0.4)',
-    TEXT: '0 2px 4px rgba(0, 0, 0, 0.3)',
+    CARD: '0 8px 32px rgba(233, 30, 99, 0.15)',
+    CARD_HOVER: '0 12px 48px rgba(233, 30, 99, 0.25)',
+    TEXT: '0 2px 4px rgba(233, 30, 99, 0.2)',
+    BUTTON: '0 4px 16px rgba(233, 30, 99, 0.2)',
+    BUTTON_HOVER: '0 8px 24px rgba(233, 30, 99, 0.3)',
   },
   BORDERS: {
-    CARD: '1px solid rgba(255, 255, 255, 0.1)',
-    CARD_HOVER: '1px solid rgba(255, 255, 255, 0.15)',
+    CARD: '1px solid rgba(233, 30, 99, 0.1)',
+    CARD_HOVER: '1px solid rgba(233, 30, 99, 0.2)',
+    INPUT: '1px solid rgba(233, 30, 99, 0.3)',
   },
   BACKDROP: {
     BLUR: 'blur(20px)',
-    OPACITY: 'rgba(255, 255, 255, 0.06)',
-    OPACITY_HOVER: 'rgba(255, 255, 255, 0.08)',
+    OPACITY: 'rgba(255, 255, 255, 0.8)',
+    OPACITY_HOVER: 'rgba(255, 255, 255, 0.9)',
   },
 };
 

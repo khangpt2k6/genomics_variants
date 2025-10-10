@@ -59,13 +59,12 @@ const Dashboard = () => {
         gutterBottom 
         sx={{ 
           mb: 4,
-          color: THEME.COLORS.PRIMARY,
           fontWeight: 700,
-          textShadow: THEME.SHADOWS.TEXT,
-          background: THEME.GRADIENTS.TEXT,
+          background: 'linear-gradient(135deg, #E91E63, #9C27B0)',
           backgroundClip: 'text',
           WebkitBackgroundClip: 'text',
           WebkitTextFillColor: 'transparent',
+          textShadow: '0 2px 4px rgba(233, 30, 99, 0.2)',
         }}
       >
         Dashboard
@@ -116,17 +115,17 @@ const Dashboard = () => {
         <Grid item xs={12} md={8}>
           <Card
             sx={{
-              background: THEME.BACKDROP.OPACITY,
-              backdropFilter: THEME.BACKDROP.BLUR,
-              border: THEME.BORDERS.CARD,
+              background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 187, 208, 0.1) 50%, rgba(156, 39, 176, 0.1) 100%)',
+              backdropFilter: 'blur(20px)',
+              border: '1px solid rgba(233, 30, 99, 0.1)',
               borderRadius: 3,
-              boxShadow: THEME.SHADOWS.CARD,
-              transition: `all ${ANIMATION.NORMAL} ${ANIMATION.EASING}`,
+              boxShadow: '0 8px 32px rgba(233, 30, 99, 0.15)',
+              transition: 'all 0.3s ease',
               '&:hover': {
-                background: THEME.BACKDROP.OPACITY_HOVER,
-                borderColor: THEME.BORDERS.CARD_HOVER,
-                transform: 'translateY(-2px)',
-                boxShadow: THEME.SHADOWS.CARD_HOVER,
+                background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 187, 208, 0.15) 50%, rgba(156, 39, 176, 0.15) 100%)',
+                borderColor: 'rgba(233, 30, 99, 0.2)',
+                transform: 'translateY(-4px)',
+                boxShadow: '0 12px 48px rgba(233, 30, 99, 0.25)',
               }
             }}
           >
@@ -135,9 +134,12 @@ const Dashboard = () => {
                 variant="h6" 
                 gutterBottom
                 sx={{
-                  color: THEME.COLORS.PRIMARY,
+                  background: 'linear-gradient(135deg, #E91E63, #9C27B0)',
+                  backgroundClip: 'text',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
                   fontWeight: 600,
-                  textShadow: THEME.SHADOWS.TEXT,
+                  textShadow: '0 2px 4px rgba(233, 30, 99, 0.2)',
                   mb: 3
                 }}
               >
@@ -151,17 +153,17 @@ const Dashboard = () => {
         <Grid item xs={12} md={4}>
           <Card
             sx={{
-              background: THEME.BACKDROP.OPACITY,
-              backdropFilter: THEME.BACKDROP.BLUR,
-              border: THEME.BORDERS.CARD,
+              background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 187, 208, 0.1) 50%, rgba(156, 39, 176, 0.1) 100%)',
+              backdropFilter: 'blur(20px)',
+              border: '1px solid rgba(233, 30, 99, 0.1)',
               borderRadius: 3,
-              boxShadow: THEME.SHADOWS.CARD,
-              transition: `all ${ANIMATION.NORMAL} ${ANIMATION.EASING}`,
+              boxShadow: '0 8px 32px rgba(233, 30, 99, 0.15)',
+              transition: 'all 0.3s ease',
               '&:hover': {
-                background: THEME.BACKDROP.OPACITY_HOVER,
-                borderColor: THEME.BORDERS.CARD_HOVER,
-                transform: 'translateY(-2px)',
-                boxShadow: THEME.SHADOWS.CARD_HOVER,
+                background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 187, 208, 0.15) 50%, rgba(156, 39, 176, 0.15) 100%)',
+                borderColor: 'rgba(233, 30, 99, 0.2)',
+                transform: 'translateY(-4px)',
+                boxShadow: '0 12px 48px rgba(233, 30, 99, 0.25)',
               }
             }}
           >
@@ -170,9 +172,12 @@ const Dashboard = () => {
                 variant="h6" 
                 gutterBottom
                 sx={{
-                  color: THEME.COLORS.PRIMARY,
+                  background: 'linear-gradient(135deg, #E91E63, #9C27B0)',
+                  backgroundClip: 'text',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
                   fontWeight: 600,
-                  textShadow: THEME.SHADOWS.TEXT,
+                  textShadow: '0 2px 4px rgba(233, 30, 99, 0.2)',
                   mb: 3
                 }}
               >

@@ -76,7 +76,16 @@ const Variants = () => {
   return (
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h4">
+        <Typography 
+          variant="h4"
+          sx={{
+            background: 'linear-gradient(135deg, #E91E63, #9C27B0)',
+            backgroundClip: 'text',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            fontWeight: 700,
+          }}
+        >
           Variants
         </Typography>
         <Box sx={{ display: 'flex', gap: 1 }}>
@@ -104,7 +113,19 @@ const Variants = () => {
       </Box>
 
       {/* Search Bar */}
-      <Card sx={{ mb: 3 }}>
+      <Card sx={{ 
+        mb: 3,
+        background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 187, 208, 0.1) 50%, rgba(156, 39, 176, 0.1) 100%)',
+        backdropFilter: 'blur(20px)',
+        border: '1px solid rgba(233, 30, 99, 0.1)',
+        borderRadius: 3,
+        boxShadow: '0 8px 32px rgba(233, 30, 99, 0.15)',
+        transition: 'all 0.3s ease',
+        '&:hover': {
+          transform: 'translateY(-2px)',
+          boxShadow: '0 12px 48px rgba(233, 30, 99, 0.2)',
+        }
+      }}>
         <CardContent>
           <Grid container spacing={2} alignItems="center">
             <Grid item xs={12} md={8}>
@@ -135,7 +156,19 @@ const Variants = () => {
 
       {/* Filters Panel */}
       {showFilters && (
-        <Card sx={{ mb: 3 }}>
+        <Card sx={{ 
+          mb: 3,
+          background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 187, 208, 0.1) 50%, rgba(156, 39, 176, 0.1) 100%)',
+          backdropFilter: 'blur(20px)',
+          border: '1px solid rgba(233, 30, 99, 0.1)',
+          borderRadius: 3,
+          boxShadow: '0 8px 32px rgba(233, 30, 99, 0.15)',
+          transition: 'all 0.3s ease',
+          '&:hover': {
+            transform: 'translateY(-2px)',
+            boxShadow: '0 12px 48px rgba(233, 30, 99, 0.2)',
+          }
+        }}>
           <CardContent>
             <VariantFiltersPanel
               filters={filters}
@@ -156,7 +189,18 @@ const Variants = () => {
       )}
 
       {/* Variants Table */}
-      <Card>
+      <Card sx={{
+        background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 187, 208, 0.1) 50%, rgba(156, 39, 176, 0.1) 100%)',
+        backdropFilter: 'blur(20px)',
+        border: '1px solid rgba(233, 30, 99, 0.1)',
+        borderRadius: 3,
+        boxShadow: '0 8px 32px rgba(233, 30, 99, 0.15)',
+        transition: 'all 0.3s ease',
+        '&:hover': {
+          transform: 'translateY(-2px)',
+          boxShadow: '0 12px 48px rgba(233, 30, 99, 0.2)',
+        }
+      }}>
         <CardContent sx={{ p: 0 }}>
           <VariantTable
             variants={data?.results || []}

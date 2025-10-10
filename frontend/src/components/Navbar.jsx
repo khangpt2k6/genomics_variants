@@ -19,10 +19,11 @@ const Navbar = () => {
       position="static" 
       elevation={0} 
       sx={{ 
-        background: (theme) => theme.palette.background.paper,
-        borderBottom: '1px solid rgba(0, 0, 0, 0.08)',
+        background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(252, 228, 236, 0.8) 100%)',
+        backdropFilter: 'blur(20px)',
+        borderBottom: '1px solid rgba(233, 30, 99, 0.1)',
         color: 'text.primary',
-        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.06)'
+        boxShadow: '0 4px 16px rgba(233, 30, 99, 0.1)'
       }}
     >
       <Toolbar>
@@ -32,7 +33,10 @@ const Navbar = () => {
           sx={{ 
             flexGrow: 1, 
             fontWeight: 600,
-            color: 'text.primary'
+            background: 'linear-gradient(135deg, #E91E63, #9C27B0)',
+            backgroundClip: 'text',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
           }}
         >
           Moffitt Variant Dashboard
@@ -74,8 +78,9 @@ const Navbar = () => {
             <Avatar sx={{ 
               width: 32, 
               height: 32, 
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              border: '2px solid rgba(0, 0, 0, 0.08)'
+              background: 'linear-gradient(135deg, #E91E63 0%, #9C27B0 100%)',
+              border: '2px solid rgba(233, 30, 99, 0.2)',
+              boxShadow: '0 4px 16px rgba(233, 30, 99, 0.2)'
             }}>
               <AccountCircleIcon />
             </Avatar>
