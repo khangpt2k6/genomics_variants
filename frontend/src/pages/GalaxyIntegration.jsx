@@ -27,7 +27,7 @@ const GalaxyIntegration = () => {
   const galaxyInstances = [
     {
       id: 1,
-      name: 'Moffitt Galaxy',
+      name: 'Cancer Center Galaxy',
       url: 'https://galaxy.moffitt.org',
       status: 'active',
       lastSync: '2024-01-15T10:30:00Z',

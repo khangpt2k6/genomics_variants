@@ -1,5 +1,5 @@
 /**
- * Utility functions for the Moffitt Variants application.
+ * Utility functions for the Variants application.
  * 
  * This file contains reusable utility functions that can be used
  * across different components and modules.

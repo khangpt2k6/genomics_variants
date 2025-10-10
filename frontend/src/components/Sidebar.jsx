@@ -40,10 +40,9 @@ const Sidebar = () => {
         '& .MuiDrawer-paper': {
           width: drawerWidth,
           boxSizing: 'border-box',
-          background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(252, 228, 236, 0.8) 100%)',
-          backdropFilter: 'blur(20px)',
-          borderRight: '1px solid rgba(233, 30, 99, 0.1)',
-          boxShadow: '8px 0 24px rgba(233, 30, 99, 0.1)',
+          background: '#ffffff',
+          borderRight: '1px solid #e0e0e0',
+          boxShadow: '2px 0 8px rgba(0, 0, 0, 0.1)',
         },
       }}
     >
@@ -52,14 +51,11 @@ const Sidebar = () => {
           variant="h6" 
           sx={{ 
             fontWeight: 600, 
-            background: 'linear-gradient(135deg, #E91E63, #9C27B0)',
-            backgroundClip: 'text',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
+            color: '#000000',
             mb: 0.5
           }}
         >
-          Moffitt Cancer Center
+          Cancer Center
         </Typography>
         <Typography 
           variant="body2" 
@@ -73,7 +69,7 @@ const Sidebar = () => {
         </Typography>
       </Box>
       
-      <Divider sx={{ borderColor: 'rgba(233, 30, 99, 0.1)' }} />
+      <Divider sx={{ borderColor: '#e0e0e0' }} />
       
       <List sx={{ px: 1, py: 2 }}>
         {menuItems.map((item) => (
@@ -86,18 +82,18 @@ const Sidebar = () => {
                 mx: 0.5,
                 transition: 'all 0.3s ease',
                 '&.Mui-selected': {
-                  background: 'linear-gradient(135deg, rgba(233, 30, 99, 0.1), rgba(156, 39, 176, 0.1))',
+                  background: '#f5f5f5',
                   color: 'text.primary',
-                  border: '1px solid rgba(233, 30, 99, 0.2)',
-                  boxShadow: '0 4px 16px rgba(233, 30, 99, 0.1)',
+                  border: '1px solid #e0e0e0',
+                  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
                   '&:hover': {
-                    background: 'linear-gradient(135deg, rgba(233, 30, 99, 0.15), rgba(156, 39, 176, 0.15))',
-                    transform: 'translateX(4px)'
+                    background: '#e0e0e0',
+                    transform: 'translateX(2px)'
                   },
                 },
                 '&:hover': {
-                  background: 'linear-gradient(135deg, rgba(233, 30, 99, 0.05), rgba(156, 39, 176, 0.05))',
-                  transform: 'translateX(2px)',
+                  background: '#f9f9f9',
+                  transform: 'translateX(1px)',
                   color: 'text.primary'
                 },
                 color: location.pathname === item.path ? 'text.primary' : 'text.secondary'

@@ -1,5 +1,5 @@
 """
-URL configuration for moffitt_variants project.
+URL configuration for variants_project.
 """
 from django.contrib import admin
 from django.urls import path, include

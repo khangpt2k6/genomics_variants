@@ -19,8 +19,7 @@ function App() {
     <Box sx={{ 
       display: 'flex', 
       minHeight: '100vh',
-      background: 'linear-gradient(135deg, #FCE4EC 0%, #F3E5F5 25%, #E8EAF6 50%, #FFF3E0 75%, #F1F8E9 100%)',
-      backgroundAttachment: 'fixed'
+      background: '#ffffff',
     }}>
       {/* Mobile Navigation */}
       <MobileNav />

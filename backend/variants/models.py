@@ -1,12 +1,11 @@
 """
-Django models for the Moffitt Variants application.
+Django models for the Variants application.
 
 This module contains all the database models for storing genetic variant data,
 clinical significance information, drug responses, and annotations.
 """
 
 from django.db import models
-from django.contrib.postgres.fields import JSONField
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.core.exceptions import ValidationError
 
@@ -173,7 +172,7 @@ class Variant(models.Model):
     # ADDITIONAL DATA
     # =============================================================================
     
-    vcf_data = JSONField(
+    vcf_data = models.JSONField(
         default=dict,
         blank=True,
         help_text="Additional VCF data as JSON"
@@ -314,7 +313,7 @@ class ClinicalSignificance(models.Model):
     # ADDITIONAL DATA
     # =============================================================================
     
-    clinvar_data = JSONField(
+    clinvar_data = models.JSONField(
         default=dict,
         blank=True,
         help_text="Additional ClinVar data as JSON"
@@ -451,7 +450,7 @@ class DrugResponse(models.Model):
     # ADDITIONAL DATA
     # =============================================================================
     
-    civic_data = JSONField(
+    civic_data = models.JSONField(
         default=dict,
         blank=True,
         help_text="Additional CIViC data as JSON"
@@ -617,7 +616,7 @@ class COSMICData(models.Model):
     # ADDITIONAL DATA
     # =============================================================================
     
-    cosmic_data = JSONField(
+    cosmic_data = models.JSONField(
         default=dict,
         blank=True,
         help_text="Additional COSMIC data as JSON"
@@ -718,7 +717,7 @@ class VariantAnnotation(models.Model):
     # COMBINED ANNOTATION DATA
     # =============================================================================
     
-    annotation_data = JSONField(
+    annotation_data = models.JSONField(
         default=dict,
         blank=True,
         help_text="Combined annotation data from all sources"

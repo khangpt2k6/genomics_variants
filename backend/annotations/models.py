@@ -1,5 +1,4 @@
 from django.db import models
-from django.contrib.postgres.fields import JSONField
 from variants.models import Variant
 
 
@@ -54,7 +53,7 @@ class AnnotationJob(models.Model):
     max_retries = models.PositiveIntegerField(default=3)
     
     # Job configuration
-    job_config = JSONField(default=dict, blank=True)
+    job_config = models.JSONField(default=dict, blank=True)
     
     class Meta:
         ordering = ['-created_at']
@@ -71,7 +70,7 @@ class VariantAnnotation(models.Model):
     job = models.ForeignKey(AnnotationJob, on_delete=models.CASCADE, null=True, blank=True)
     
     # Annotation data
-    annotation_data = JSONField(default=dict)
+    annotation_data = models.JSONField(default=dict)
     confidence_score = models.FloatField(null=True, blank=True)
     
     # Status
@@ -115,7 +114,7 @@ class ClinVarAnnotation(models.Model):
     submission_date = models.DateField(null=True, blank=True)
     
     # Additional ClinVar data
-    clinvar_raw_data = JSONField(default=dict, blank=True)
+    clinvar_raw_data = models.JSONField(default=dict, blank=True)
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -154,7 +153,7 @@ class COSMICAnnotation(models.Model):
     mutation_count = models.PositiveIntegerField(null=True, blank=True)
     
     # Additional COSMIC data
-    cosmic_raw_data = JSONField(default=dict, blank=True)
+    cosmic_raw_data = models.JSONField(default=dict, blank=True)
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -191,7 +190,7 @@ class CIViCAnnotation(models.Model):
     clinical_trial_id = models.CharField(max_length=50, blank=True)
     
     # Additional CIViC data
-    civic_raw_data = JSONField(default=dict, blank=True)
+    civic_raw_data = models.JSONField(default=dict, blank=True)
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -210,7 +209,7 @@ class AnnotationCache(models.Model):
     variant = models.ForeignKey(Variant, on_delete=models.CASCADE, related_name='cached_annotations')
     
     # Cached data
-    cached_data = JSONField(default=dict)
+    cached_data = models.JSONField(default=dict)
     
     # Cache metadata
     created_at = models.DateTimeField(auto_now_add=True)

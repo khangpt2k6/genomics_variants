@@ -16,28 +16,26 @@ const StatCard = ({
   subtitle,
 }) => {
   const colorMap = {
-    primary: '#E91E63', // Pink
-    secondary: '#9C27B0', // Purple
-    error: '#F44336',
-    warning: '#FF9800',
-    info: '#2196F3',
-    success: '#4CAF50',
+    primary: '#000000', // Black
+    secondary: '#666666', // Dark gray
+    error: '#000000',
+    warning: '#666666',
+    info: '#000000',
+    success: '#000000',
   };
 
   return (
     <Card 
       sx={{ 
         height: '100%',
-        background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 187, 208, 0.1) 50%, rgba(156, 39, 176, 0.1) 100%)',
-        border: '1px solid rgba(233, 30, 99, 0.1)',
-        borderRadius: 3,
-        boxShadow: '0 8px 32px rgba(233, 30, 99, 0.15)',
-        backdropFilter: 'blur(20px)',
-        transition: 'all 0.3s ease',
+        background: '#ffffff',
+        border: '1px solid #e0e0e0',
+        borderRadius: 2,
+        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+        transition: 'all 0.2s ease',
         '&:hover': {
-          transform: 'translateY(-4px)',
-          boxShadow: '0 12px 48px rgba(233, 30, 99, 0.25)',
-          borderColor: 'rgba(233, 30, 99, 0.2)',
+          transform: 'translateY(-2px)',
+          boxShadow: '0 4px 16px rgba(0, 0, 0, 0.15)',
         }
       }}
     >
@@ -47,16 +45,16 @@ const StatCard = ({
             sx={{
               p: 2,
               borderRadius: 2,
-              background: `linear-gradient(135deg, ${colorMap[color]}30, ${colorMap[color]}15)`,
-              border: `1px solid ${colorMap[color]}40`,
+              background: '#f5f5f5',
+              border: `1px solid ${colorMap[color]}`,
               color: colorMap[color],
               mr: 2,
-              boxShadow: `0 4px 16px ${colorMap[color]}25`,
-              transition: 'all 0.3s ease',
+              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+              transition: 'all 0.2s ease',
               '&:hover': {
-                transform: 'scale(1.1) rotate(8deg)',
-                boxShadow: `0 8px 24px ${colorMap[color]}35`,
-                background: `linear-gradient(135deg, ${colorMap[color]}40, ${colorMap[color]}20)`,
+                transform: 'scale(1.05)',
+                boxShadow: '0 4px 8px rgba(0, 0, 0, 0.15)',
+                background: '#e0e0e0',
               }
             }}
           >
@@ -83,7 +81,7 @@ const StatCard = ({
                 width={60} 
                 height={32} 
                 sx={{ 
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  backgroundColor: '#e0e0e0',
                   borderRadius: 1
                 }} 
               />

@@ -19,11 +19,10 @@ const Navbar = () => {
       position="static" 
       elevation={0} 
       sx={{ 
-        background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(252, 228, 236, 0.8) 100%)',
-        backdropFilter: 'blur(20px)',
-        borderBottom: '1px solid rgba(233, 30, 99, 0.1)',
+        background: '#ffffff',
+        borderBottom: '1px solid #e0e0e0',
         color: 'text.primary',
-        boxShadow: '0 4px 16px rgba(233, 30, 99, 0.1)'
+        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
       }}
     >
       <Toolbar>
@@ -33,13 +32,10 @@ const Navbar = () => {
           sx={{ 
             flexGrow: 1, 
             fontWeight: 600,
-            background: 'linear-gradient(135deg, #E91E63, #9C27B0)',
-            backgroundClip: 'text',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
+            color: '#000000',
           }}
         >
-          Moffitt Variant Dashboard
+          Variant Dashboard
         </Typography>
         
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -48,18 +44,16 @@ const Navbar = () => {
               color: 'text.primary',
               '&:hover': {
                 background: 'rgba(0, 0, 0, 0.04)',
-                transform: 'scale(1.05)'
               },
-              transition: 'all 0.3s ease'
+              transition: 'all 0.2s ease'
             }}
           >
             <Badge 
               badgeContent={4} 
               sx={{
                 '& .MuiBadge-badge': {
-                  backgroundColor: '#ff4757',
+                  backgroundColor: '#000000',
                   color: '#ffffff',
-                  boxShadow: '0 0 8px rgba(255, 71, 87, 0.5)'
                 }
               }}
             >
@@ -70,17 +64,16 @@ const Navbar = () => {
           <IconButton 
             sx={{ 
               '&:hover': {
-                transform: 'scale(1.05)'
+                background: 'rgba(0, 0, 0, 0.04)'
               },
-              transition: 'all 0.3s ease'
+              transition: 'all 0.2s ease'
             }}
           >
             <Avatar sx={{ 
               width: 32, 
               height: 32, 
-              background: 'linear-gradient(135deg, #E91E63 0%, #9C27B0 100%)',
-              border: '2px solid rgba(233, 30, 99, 0.2)',
-              boxShadow: '0 4px 16px rgba(233, 30, 99, 0.2)'
+              background: '#000000',
+              border: '2px solid #e0e0e0',
             }}>
               <AccountCircleIcon />
             </Avatar>

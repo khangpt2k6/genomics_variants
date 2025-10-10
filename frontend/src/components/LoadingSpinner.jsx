@@ -42,7 +42,7 @@ const LoadingSpinner = ({
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    background: 'linear-gradient(135deg, rgba(252, 228, 236, 0.9) 0%, rgba(243, 229, 245, 0.9) 100%)',
+    background: 'rgba(255, 255, 255, 0.9)',
     backdropFilter: 'blur(10px)',
     zIndex: 9999,
   } : {
@@ -65,7 +65,7 @@ const LoadingSpinner = ({
                   height: 20,
                   mb: 2,
                   borderRadius: 1,
-                  background: 'linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)',
+                  background: '#e0e0e0',
                   backgroundSize: '200px 100%',
                   animation: `${shimmerAnimation} 1.5s infinite`,
                   opacity: 0.7,
@@ -85,7 +85,7 @@ const LoadingSpinner = ({
                   width: 12,
                   height: 12,
                   borderRadius: '50%',
-                  background: 'linear-gradient(135deg, #E91E63, #9C27B0)',
+                  background: '#000000',
                   animation: `${pulseAnimation} 1.4s infinite`,
                   animationDelay: `${index * 0.2}s`,
                 }}
@@ -120,10 +120,7 @@ const LoadingSpinner = ({
             mt: 2,
             color: '#666666',
             fontWeight: 500,
-            background: 'linear-gradient(135deg, #E91E63, #9C27B0)',
-            backgroundClip: 'text',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
+            color: '#000000',
           }}
         >
           {message}

@@ -14,7 +14,7 @@ import {
 } from 'recharts';
 import { Box, Typography, Skeleton, Grid } from '@mui/material';
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
+const COLORS = ['#000000', '#666666', '#999999', '#cccccc', '#333333'];
 
 const VariantChart = ({ data, loading = false }) => {
   if (loading) {

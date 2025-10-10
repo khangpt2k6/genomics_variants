@@ -1,6 +1,27 @@
 import django_filters
 from django.db.models import Q
-from .models import GalaxyHistory, GalaxyDataset, GalaxyWorkflow, GalaxySyncJob
+from .models import GalaxyInstance, GalaxyHistory, GalaxyDataset, GalaxyWorkflow, GalaxySyncJob
+
+
+class GalaxyInstanceFilter(django_filters.FilterSet):
+    """Filter for GalaxyInstance model"""
+    
+    name = django_filters.CharFilter(field_name='name', lookup_expr='icontains')
+    url = django_filters.CharFilter(field_name='url', lookup_expr='icontains')
+    is_active = django_filters.BooleanFilter(field_name='is_active')
+    
+    # Date filters
+    created_after = django_filters.DateTimeFilter(field_name='created_at', lookup_expr='gte')
+    created_before = django_filters.DateTimeFilter(field_name='created_at', lookup_expr='lte')
+    last_checked_after = django_filters.DateTimeFilter(field_name='last_checked', lookup_expr='gte')
+    last_checked_before = django_filters.DateTimeFilter(field_name='last_checked', lookup_expr='lte')
+    
+    class Meta:
+        model = GalaxyInstance
+        fields = [
+            'name', 'url', 'is_active', 'created_after', 'created_before',
+            'last_checked_after', 'last_checked_before'
+        ]
 
 
 class GalaxyHistoryFilter(django_filters.FilterSet):

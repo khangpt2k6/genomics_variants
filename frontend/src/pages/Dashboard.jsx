@@ -60,11 +60,7 @@ const Dashboard = () => {
         sx={{ 
           mb: 4,
           fontWeight: 700,
-          background: 'linear-gradient(135deg, #E91E63, #9C27B0)',
-          backgroundClip: 'text',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          textShadow: '0 2px 4px rgba(233, 30, 99, 0.2)',
+          color: '#000000',
         }}
       >
         Dashboard
@@ -115,17 +111,14 @@ const Dashboard = () => {
         <Grid item xs={12} md={8}>
           <Card
             sx={{
-              background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 187, 208, 0.1) 50%, rgba(156, 39, 176, 0.1) 100%)',
-              backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(233, 30, 99, 0.1)',
-              borderRadius: 3,
-              boxShadow: '0 8px 32px rgba(233, 30, 99, 0.15)',
-              transition: 'all 0.3s ease',
+              background: '#ffffff',
+              border: '1px solid #e0e0e0',
+              borderRadius: 2,
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+              transition: 'all 0.2s ease',
               '&:hover': {
-                background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 187, 208, 0.15) 50%, rgba(156, 39, 176, 0.15) 100%)',
-                borderColor: 'rgba(233, 30, 99, 0.2)',
-                transform: 'translateY(-4px)',
-                boxShadow: '0 12px 48px rgba(233, 30, 99, 0.25)',
+                transform: 'translateY(-2px)',
+                boxShadow: '0 4px 16px rgba(0, 0, 0, 0.15)',
               }
             }}
           >
@@ -134,12 +127,8 @@ const Dashboard = () => {
                 variant="h6" 
                 gutterBottom
                 sx={{
-                  background: 'linear-gradient(135deg, #E91E63, #9C27B0)',
-                  backgroundClip: 'text',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
+                  color: '#000000',
                   fontWeight: 600,
-                  textShadow: '0 2px 4px rgba(233, 30, 99, 0.2)',
                   mb: 3
                 }}
               >
@@ -153,17 +142,14 @@ const Dashboard = () => {
         <Grid item xs={12} md={4}>
           <Card
             sx={{
-              background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 187, 208, 0.1) 50%, rgba(156, 39, 176, 0.1) 100%)',
-              backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(233, 30, 99, 0.1)',
-              borderRadius: 3,
-              boxShadow: '0 8px 32px rgba(233, 30, 99, 0.15)',
-              transition: 'all 0.3s ease',
+              background: '#ffffff',
+              border: '1px solid #e0e0e0',
+              borderRadius: 2,
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+              transition: 'all 0.2s ease',
               '&:hover': {
-                background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 187, 208, 0.15) 50%, rgba(156, 39, 176, 0.15) 100%)',
-                borderColor: 'rgba(233, 30, 99, 0.2)',
-                transform: 'translateY(-4px)',
-                boxShadow: '0 12px 48px rgba(233, 30, 99, 0.25)',
+                transform: 'translateY(-2px)',
+                boxShadow: '0 4px 16px rgba(0, 0, 0, 0.15)',
               }
             }}
           >
@@ -172,12 +158,8 @@ const Dashboard = () => {
                 variant="h6" 
                 gutterBottom
                 sx={{
-                  background: 'linear-gradient(135deg, #E91E63, #9C27B0)',
-                  backgroundClip: 'text',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
+                  color: '#000000',
                   fontWeight: 600,
-                  textShadow: '0 2px 4px rgba(233, 30, 99, 0.2)',
                   mb: 3
                 }}
               >

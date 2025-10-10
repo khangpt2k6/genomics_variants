@@ -56,19 +56,16 @@ const MobileNav = () => {
         display: 'flex', 
         justifyContent: 'space-between', 
         alignItems: 'center',
-        borderBottom: '1px solid rgba(233, 30, 99, 0.1)'
+        borderBottom: '1px solid #e0e0e0'
       }}>
         <Typography 
           variant="h6" 
           sx={{ 
             fontWeight: 600, 
-            background: 'linear-gradient(135deg, #E91E63, #9C27B0)',
-            backgroundClip: 'text',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
+            color: '#000000',
           }}
         >
-          Moffitt Cancer Center
+          Cancer Center
         </Typography>
         <IconButton onClick={handleDrawerToggle}>
           <CloseIcon />
@@ -127,10 +124,9 @@ const MobileNav = () => {
         position="fixed" 
         sx={{ 
           display: { xs: 'block', md: 'none' },
-          background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(252, 228, 236, 0.8) 100%)',
-          backdropFilter: 'blur(20px)',
-          borderBottom: '1px solid rgba(233, 30, 99, 0.1)',
-          boxShadow: '0 4px 16px rgba(233, 30, 99, 0.1)',
+          background: '#ffffff',
+          borderBottom: '1px solid #e0e0e0',
+          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
           color: 'text.primary',
         }}
       >
@@ -150,14 +146,11 @@ const MobileNav = () => {
             component="div"
             sx={{
               flexGrow: 1,
-              fontWeight: 600,
-              background: 'linear-gradient(135deg, #E91E63, #9C27B0)',
-              backgroundClip: 'text',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
+            fontWeight: 600,
+            color: '#000000',
             }}
           >
-            Moffitt Variants
+            Variants
           </Typography>
         </Toolbar>
       </AppBar>
@@ -174,8 +167,7 @@ const MobileNav = () => {
           '& .MuiDrawer-paper': {
             boxSizing: 'border-box',
             width: 280,
-            background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(252, 228, 236, 0.8) 100%)',
-            backdropFilter: 'blur(20px)',
+            background: '#ffffff',
           },
         }}
       >

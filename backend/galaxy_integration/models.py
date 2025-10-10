@@ -1,5 +1,4 @@
 from django.db import models
-from django.contrib.postgres.fields import JSONField
 
 
 class GalaxyInstance(models.Model):
@@ -49,7 +48,7 @@ class GalaxyHistory(models.Model):
     galaxy_created_at = models.DateTimeField(null=True, blank=True)
     
     # Additional Galaxy data
-    galaxy_data = JSONField(default=dict, blank=True)
+    galaxy_data = models.JSONField(default=dict, blank=True)
     
     class Meta:
         ordering = ['-created_at']
@@ -104,7 +103,7 @@ class GalaxyDataset(models.Model):
     galaxy_created_at = models.DateTimeField(null=True, blank=True)
     
     # Additional Galaxy data
-    galaxy_data = JSONField(default=dict, blank=True)
+    galaxy_data = models.JSONField(default=dict, blank=True)
     
     class Meta:
         ordering = ['-created_at']
@@ -154,7 +153,7 @@ class GalaxyWorkflow(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     
     # Additional Galaxy data
-    galaxy_data = JSONField(default=dict, blank=True)
+    galaxy_data = models.JSONField(default=dict, blank=True)
     
     class Meta:
         ordering = ['-created_at']
@@ -195,7 +194,7 @@ class GalaxySyncJob(models.Model):
     max_retries = models.PositiveIntegerField(default=3)
     
     # Job configuration
-    job_config = JSONField(default=dict, blank=True)
+    job_config = models.JSONField(default=dict, blank=True)
     
     class Meta:
         ordering = ['-created_at']
