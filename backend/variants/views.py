@@ -149,8 +149,8 @@ class AnnotationViewSet(viewsets.ModelViewSet):
     pagination_class = StandardResultsSetPagination
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['variant__variant_id', 'variant__gene_symbol']
-    ordering_fields = ['created_at', 'confidence_score']
-    ordering = ['-created_at']
+    ordering_fields = ['annotation_date', 'pathogenicity_score']
+    ordering = ['-annotation_date']
 
     @action(detail=False, methods=['get'])
     def by_source(self, request):

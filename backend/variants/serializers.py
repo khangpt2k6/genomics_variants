@@ -105,13 +105,12 @@ class COSMICDataSerializer(serializers.ModelSerializer):
 class VariantAnnotationSerializer(serializers.ModelSerializer):
     """Serializer for VariantAnnotation model"""
     
-    variant_id = serializers.IntegerField(source='variant.id', read_only=True)
-    variant_display = serializers.CharField(source='variant.__str__', read_only=True)
+    variant = VariantSerializer(read_only=True)
     
     class Meta:
         model = VariantAnnotation
         fields = [
-            'id', 'variant_id', 'variant_display', 'is_pathogenic', 'is_drug_target',
+            'id', 'variant', 'is_pathogenic', 'is_drug_target',
             'has_cosmic_data', 'pathogenicity_score', 'drug_response_score',
             'annotation_date', 'annotation_version', 'annotation_data'
         ]
