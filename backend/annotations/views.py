@@ -131,7 +131,7 @@ class VariantAnnotationViewSet(viewsets.ModelViewSet):
     pagination_class = StandardResultsSetPagination
     filter_backends = [DjangoFilterBackend]
     filterset_class = VariantAnnotationFilter
-    ordering = ['-created_at']
+    ordering = ['-annotation_date']
 
     @action(detail=False, methods=['get'])
     def by_variant(self, request):
