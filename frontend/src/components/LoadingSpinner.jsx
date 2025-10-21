@@ -1,133 +1,14 @@
 import React from 'react';
-import { Box, CircularProgress, Typography } from '@mui/material';
-import { keyframes } from '@mui/system';
 
-const pulseAnimation = keyframes`
-  0% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.1);
-    opacity: 0.7;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-`;
-
-const shimmerAnimation = keyframes`
-  0% {
-    background-position: -200px 0;
-  }
-  100% {
-    background-position: calc(200px + 100%) 0;
-  }
-`;
-
-const LoadingSpinner = ({ 
-  size = 60, 
-  message = 'Loading...', 
-  fullScreen = false,
-  variant = 'circular' // 'circular', 'skeleton', 'dots'
-}) => {
-  const containerStyles = fullScreen ? {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    width: '100%',
-    height: '100%',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    background: 'rgba(255, 255, 255, 0.9)',
-    backdropFilter: 'blur(10px)',
-    zIndex: 9999,
-  } : {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    p: 4,
-  };
-
-  const renderLoader = () => {
-    switch (variant) {
-      case 'skeleton':
-        return (
-          <Box sx={{ width: '100%', maxWidth: 400 }}>
-            {[...Array(3)].map((_, index) => (
-              <Box
-                key={index}
-                sx={{
-                  height: 20,
-                  mb: 2,
-                  borderRadius: 1,
-                  background: '#e0e0e0',
-                  backgroundSize: '200px 100%',
-                  animation: `${shimmerAnimation} 1.5s infinite`,
-                  opacity: 0.7,
-                }}
-              />
-            ))}
-          </Box>
-        );
-      
-      case 'dots':
-        return (
-          <Box sx={{ display: 'flex', gap: 1 }}>
-            {[...Array(3)].map((_, index) => (
-              <Box
-                key={index}
-                sx={{
-                  width: 12,
-                  height: 12,
-                  borderRadius: '50%',
-                  background: '#000000',
-                  animation: `${pulseAnimation} 1.4s infinite`,
-                  animationDelay: `${index * 0.2}s`,
-                }}
-              />
-            ))}
-          </Box>
-        );
-      
-      default:
-        return (
-          <CircularProgress
-            size={size}
-            thickness={4}
-            sx={{
-              color: '#E91E63',
-              '& .MuiCircularProgress-circle': {
-                strokeLinecap: 'round',
-              },
-            }}
-          />
-        );
-    }
-  };
-
+export default function LoadingSpinner() {
   return (
-    <Box sx={containerStyles}>
-      {renderLoader()}
-      {message && (
-        <Typography
-          variant="body1"
-          sx={{
-            mt: 2,
-            color: '#666666',
-            fontWeight: 500,
-            color: '#000000',
-          }}
-        >
-          {message}
-        </Typography>
-      )}
-    </Box>
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="text-center">
+        <div className="inline-block">
+          <div className="w-12 h-12 border-4 border-gray-200 border-t-primary-600 rounded-full animate-spin"></div>
+        </div>
+        <p className="mt-4 text-gray-600 font-medium">Loading...</p>
+      </div>
+    </div>
   );
-};
-
-export default LoadingSpinner;
+}
