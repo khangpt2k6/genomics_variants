@@ -1,129 +1,71 @@
 import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import {
-  Drawer,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Typography,
-  Box,
-  Divider,
-} from '@mui/material';
-import {
-  Dashboard as DashboardIcon,
-  Science as ScienceIcon,
-  Assignment as AssignmentIcon,
-  CloudUpload as CloudUploadIcon,
-} from '@mui/icons-material';
-import { useNavigate, useLocation } from 'react-router-dom';
-
-const drawerWidth = 240;
+  LayoutDashboard,
+  Dna,
+  Network,
+  FileText,
+  Zap,
+  X,
+} from 'lucide-react';
 
 const menuItems = [
-  { text: 'Dashboard', icon: <DashboardIcon />, path: '/' },
-  { text: 'Variants', icon: <ScienceIcon />, path: '/variants' },
-  { text: 'Annotations', icon: <AssignmentIcon />, path: '/annotations' },
-  { text: 'Galaxy Integration', icon: <CloudUploadIcon />, path: '/galaxy' },
+  { icon: LayoutDashboard, label: 'Dashboard', path: '/' },
+  { icon: Dna, label: 'Variants', path: '/variants' },
+  { icon: Network, label: 'Variant Network', path: '/network' },
+  { icon: FileText, label: 'Annotations', path: '/annotations' },
+  { icon: Zap, label: 'Galaxy Integration', path: '/galaxy' },
 ];
 
-const Sidebar = () => {
-  const navigate = useNavigate();
+export default function Sidebar({ open, setOpen }) {
   const location = useLocation();
 
   return (
-    <Drawer
-      variant="permanent"
-      sx={{
-        width: drawerWidth,
-        flexShrink: 0,
-        '& .MuiDrawer-paper': {
-          width: drawerWidth,
-          boxSizing: 'border-box',
-          background: '#ffffff',
-          borderRight: '1px solid #e0e0e0',
-          boxShadow: '2px 0 8px rgba(0, 0, 0, 0.1)',
-        },
-      }}
-    >
-      <Box sx={{ p: 2 }}>
-        <Typography 
-          variant="h6" 
-          sx={{ 
-            fontWeight: 600, 
-            color: '#000000',
-            mb: 0.5
-          }}
-        >
-          Cancer Center
-        </Typography>
-        <Typography 
-          variant="body2" 
-          sx={{ 
-            color: 'text.secondary',
-            fontSize: '0.75rem',
-            fontWeight: 400
-          }}
-        >
-          Variant Interpretation Platform
-        </Typography>
-      </Box>
-      
-      <Divider sx={{ borderColor: '#e0e0e0' }} />
-      
-      <List sx={{ px: 1, py: 2 }}>
-        {menuItems.map((item) => (
-          <ListItem key={item.text} disablePadding sx={{ mb: 0.5 }}>
-            <ListItemButton
-              selected={location.pathname === item.path}
-              onClick={() => navigate(item.path)}
-              sx={{
-                borderRadius: 2,
-                mx: 0.5,
-                transition: 'all 0.3s ease',
-                '&.Mui-selected': {
-                  background: '#f5f5f5',
-                  color: 'text.primary',
-                  border: '1px solid #e0e0e0',
-                  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                  '&:hover': {
-                    background: '#e0e0e0',
-                    transform: 'translateX(2px)'
-                  },
-                },
-                '&:hover': {
-                  background: '#f9f9f9',
-                  transform: 'translateX(1px)',
-                  color: 'text.primary'
-                },
-                color: location.pathname === item.path ? 'text.primary' : 'text.secondary'
-              }}
-            >
-              <ListItemIcon
-                sx={{
-                  color: location.pathname === item.path ? 'text.primary' : 'text.secondary',
-                  minWidth: 40,
-                  transition: 'all 0.3s ease'
-                }}
-              >
-                {item.icon}
-              </ListItemIcon>
-              <ListItemText 
-                primary={item.text}
-                sx={{
-                  '& .MuiListItemText-primary': {
-                    fontWeight: location.pathname === item.path ? 600 : 400,
-                    fontSize: '0.9rem'
-                  }
-                }}
-              />
-            </ListItemButton>
-          </ListItem>
-        ))}
-      </List>
-    </Drawer>
+    <>
+      {/* Mobile overlay */}
+      {open && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
+          onClick={() => setOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside
+        className={`fixed md:static inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 transform transition-transform duration-300 ease-in-out ${
+          open ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+        }`}
+      >
+        <div className="h-full flex flex-col">
+          {/* Header */}
+          
+
+          {/* Navigation */}
+          <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+            {menuItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = location.pathname === item.path;
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  onClick={() => setOpen(false)}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                    isActive
+                      ? 'bg-primary-50 text-primary-600 font-medium'
+                      : 'text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  <Icon size={20} />
+                  <span>{item.label}</span>
+                </Link>
+              );
+            })}
+          </nav>
+
+          
+        </div>
+      </aside>
+    </>
   );
-};
-
-export default Sidebar;
-
+}
