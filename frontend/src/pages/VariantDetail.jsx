@@ -1,387 +1,297 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import {
-  Box,
-  Typography,
-  Card,
-  CardContent,
-  Grid,
-  Chip,
-  Button,
-  Tabs,
-  Tab,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Divider,
-} from '@mui/material';
-import {
-  ArrowBack as ArrowBackIcon,
-  Science as ScienceIcon,
-  Assignment as AssignmentIcon,
-  LocalHospital as LocalHospitalIcon,
-} from '@mui/icons-material';
 import { useQuery } from '@tanstack/react-query';
-import { variantsApi } from '../services/variants';
+import LoadingSpinner from '../components/LoadingSpinner';
+import api   from '../services/api';
+import { ArrowLeft, AlertCircle, CheckCircle } from 'lucide-react';
 
-const VariantDetail = () => {
+export default function VariantDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = React.useState(0);
 
   const { data: variant, isLoading, error } = useQuery({
     queryKey: ['variant', id],
-    queryFn: () => variantsApi.getVariant(parseInt(id)),
-    enabled: !!id,
+    queryFn: async () => {
+      const response = await api.get(`/variants/${id}/`);
+      return response.data;
+    },
   });
 
-  if (isLoading) {
+  if (isLoading) return <LoadingSpinner />;
+
+  if (error) {
     return (
-      <Box>
-        <Typography>Loading variant details...</Typography>
-      </Box>
+      <div className="space-y-6">
+        <button
+          onClick={() => navigate('/variants')}
+          className="flex items-center gap-2 text-primary-600 hover:text-primary-700 font-medium"
+        >
+          <ArrowLeft size={20} />
+          Back to Variants
+        </button>
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6 flex items-start gap-3">
+          <AlertCircle className="text-red-600 flex-shrink-0 mt-0.5" size={24} />
+          <div>
+            <h3 className="font-medium text-red-900">Error loading variant</h3>
+            <p className="text-red-700 text-sm mt-1">{error.message}</p>
+          </div>
+        </div>
+      </div>
     );
   }
 
-  if (error || !variant) {
-    return (
-      <Box>
-        <Typography color="error">
-          Error loading variant: {error?.message || 'Variant not found'}
-        </Typography>
-      </Box>
-    );
-  }
+  if (!variant) return null;
 
-  const getImpactColor = (impact) => {
-    switch (impact) {
-      case 'HIGH':
-        return 'error';
-      case 'MODERATE':
-        return 'warning';
-      case 'LOW':
-        return 'info';
-      case 'MODIFIER':
-        return 'default';
-      default:
-        return 'default';
-    }
-  };
+  return (
+    <div className="space-y-6">
+      {/* Back Button */}
+      <button
+        onClick={() => navigate('/variants')}
+        className="flex items-center gap-2 text-primary-600 hover:text-primary-700 font-medium"
+      >
+        <ArrowLeft size={20} />
+        Back to Variants
+      </button>
 
-  const getSignificanceColor = (significance) => {
-    switch (significance) {
-      case 'pathogenic':
-        return 'error';
-      case 'likely_pathogenic':
-        return 'warning';
-      case 'uncertain_significance':
-        return 'info';
-      case 'likely_benign':
-      case 'benign':
-        return 'success';
-      case 'conflicting':
-        return 'secondary';
-      default:
-        return 'default';
-    }
+      {/* Header */}
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="flex items-start justify-between mb-4">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">
+              {variant.chromosome}:{variant.position}
+            </h1>
+            <p className="text-gray-600 mt-2">
+              {variant.reference_allele} &gt; {variant.alternate_allele}
+            </p>
+          </div>
+          <div className="flex gap-2">
+            {variant.impact && (
+              <ImpactBadge impact={variant.impact} />
+            )}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <InfoCard label="Variant ID" value={variant.variant_id} />
+          <InfoCard label="Gene" value={variant.gene_symbol || '-'} />
+          <InfoCard label="Consequence" value={variant.consequence || '-'} />
+          <InfoCard
+            label="Quality Score"
+            value={variant.quality_score ? variant.quality_score.toFixed(2) : '-'}
+          />
+        </div>
+      </div>
+
+      {/* Genomic Context */}
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <h2 className="text-xl font-bold text-gray-900 mb-4">Genomic Context</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <DetailRow label="Chromosome" value={variant.chromosome} />
+          <DetailRow label="Position" value={variant.position} />
+          <DetailRow label="Reference Allele" value={variant.reference_allele} />
+          <DetailRow label="Alternate Allele" value={variant.alternate_allele} />
+          <DetailRow label="Transcript ID" value={variant.transcript_id || '-'} />
+          <DetailRow label="HGVS cDNA" value={variant.hgvs_c || '-'} />
+          <DetailRow label="HGVS Protein" value={variant.hgvs_p || '-'} />
+          <DetailRow label="Filter Status" value={variant.filter_status || 'PASS'} />
+        </div>
+      </div>
+
+      {/* Functional Impact */}
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <h2 className="text-xl font-bold text-gray-900 mb-4">Functional Impact</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <DetailRow label="Impact" value={variant.impact || '-'} />
+          <DetailRow label="Consequence" value={variant.consequence || '-'} />
+        </div>
+      </div>
+
+      {/* Population Frequencies */}
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <h2 className="text-xl font-bold text-gray-900 mb-4">
+          Population Frequencies (gnomAD)
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FrequencyRow
+            label="Global AF"
+            value={variant.gnomad_af}
+          />
+          <FrequencyRow
+            label="African/African American AF"
+            value={variant.gnomad_af_afr}
+          />
+          <FrequencyRow
+            label="Latino/Admixed American AF"
+            value={variant.gnomad_af_amr}
+          />
+          <FrequencyRow
+            label="East Asian AF"
+            value={variant.gnomad_af_eas}
+          />
+          <FrequencyRow
+            label="Non-Finnish European AF"
+            value={variant.gnomad_af_nfe}
+          />
+          <FrequencyRow
+            label="South Asian AF"
+            value={variant.gnomad_af_sas}
+          />
+        </div>
+      </div>
+
+      {/* Clinical Significance */}
+      {variant.clinical_significance && variant.clinical_significance.length > 0 && (
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <h2 className="text-xl font-bold text-gray-900 mb-4">
+            Clinical Significance
+          </h2>
+          <div className="space-y-4">
+            {variant.clinical_significance.map((cs, idx) => (
+              <ClinicalSignificanceCard key={idx} data={cs} />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Drug Responses */}
+      {variant.drug_responses && variant.drug_responses.length > 0 && (
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <h2 className="text-xl font-bold text-gray-900 mb-4">
+            Drug Responses
+          </h2>
+          <div className="space-y-4">
+            {variant.drug_responses.map((dr, idx) => (
+              <DrugResponseCard key={idx} data={dr} />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* VCF Data */}
+      {variant.vcf_data && Object.keys(variant.vcf_data).length > 0 && (
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <h2 className="text-xl font-bold text-gray-900 mb-4">VCF Data</h2>
+          <div className="bg-gray-50 rounded-lg p-4 overflow-auto">
+            <pre className="text-sm text-gray-600 font-mono">
+              {JSON.stringify(variant.vcf_data, null, 2)}
+            </pre>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function InfoCard({ label, value }) {
+  return (
+    <div className="bg-gray-50 rounded-lg p-4">
+      <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">
+        {label}
+      </p>
+      <p className="text-sm font-medium text-gray-900 mt-2 break-all">{value}</p>
+    </div>
+  );
+}
+
+function DetailRow({ label, value }) {
+  return (
+    <div className="bg-gray-50 rounded-lg p-4">
+      <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">
+        {label}
+      </p>
+      <p className="text-sm font-medium text-gray-900 mt-2 break-all">{value}</p>
+    </div>
+  );
+}
+
+function FrequencyRow({ label, value }) {
+  return (
+    <div className="bg-gray-50 rounded-lg p-4">
+      <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">
+        {label}
+      </p>
+      <p className="text-sm font-medium text-gray-900 mt-2">
+        {value ? (value * 100).toFixed(4) + '%' : '-'}
+      </p>
+    </div>
+  );
+}
+
+function ImpactBadge({ impact }) {
+  const colors = {
+    HIGH: 'bg-red-100 text-red-800',
+    MODERATE: 'bg-yellow-100 text-yellow-800',
+    LOW: 'bg-blue-100 text-blue-800',
+    MODIFIER: 'bg-gray-100 text-gray-800',
   };
 
   return (
-    <Box>
-      {/* Header */}
-      <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-        <Button
-          startIcon={<ArrowBackIcon />}
-          onClick={() => navigate('/variants')}
-          sx={{ mr: 2 }}
-        >
-          Back to Variants
-        </Button>
-        <Typography variant="h4" sx={{ flexGrow: 1 }}>
-          Variant Details
-        </Typography>
-      </Box>
-
-      {/* Basic Information */}
-      <Card sx={{ mb: 3 }}>
-        <CardContent>
-          <Typography variant="h6" gutterBottom>
-            Basic Information
-          </Typography>
-          <Grid container spacing={3}>
-            <Grid item xs={12} md={6}>
-              <Box sx={{ mb: 2 }}>
-                <Typography variant="subtitle2" color="text.secondary">
-                  Variant ID
-                </Typography>
-                <Typography variant="body1" sx={{ fontFamily: 'monospace' }}>
-                  {variant.variant_id}
-                </Typography>
-              </Box>
-              <Box sx={{ mb: 2 }}>
-                <Typography variant="subtitle2" color="text.secondary">
-                  Genomic Position
-                </Typography>
-                <Typography variant="body1">
-                  {variant.chromosome}:{variant.position}
-                </Typography>
-              </Box>
-              <Box sx={{ mb: 2 }}>
-                <Typography variant="subtitle2" color="text.secondary">
-                  Allele Change
-                </Typography>
-                <Typography variant="body1" sx={{ fontFamily: 'monospace' }}>
-                  {variant.reference_allele} → {variant.alternate_allele}
-                </Typography>
-              </Box>
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Box sx={{ mb: 2 }}>
-                <Typography variant="subtitle2" color="text.secondary">
-                  Gene Symbol
-                </Typography>
-                <Typography variant="body1">
-                  {variant.gene_symbol || 'N/A'}
-                </Typography>
-              </Box>
-              <Box sx={{ mb: 2 }}>
-                <Typography variant="subtitle2" color="text.secondary">
-                  Consequence
-                </Typography>
-                <Typography variant="body1">
-                  {variant.consequence || 'N/A'}
-                </Typography>
-              </Box>
-              <Box sx={{ mb: 2 }}>
-                <Typography variant="subtitle2" color="text.secondary">
-                  Impact
-                </Typography>
-                {variant.impact ? (
-                  <Chip
-                    label={variant.impact}
-                    color={getImpactColor(variant.impact)}
-                    variant="outlined"
-                  />
-                ) : (
-                  <Typography variant="body1">N/A</Typography>
-                )}
-              </Box>
-            </Grid>
-          </Grid>
-        </CardContent>
-      </Card>
-
-      {/* Tabs for detailed information */}
-      <Card>
-        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-          <Tabs value={activeTab} onChange={(_, newValue) => setActiveTab(newValue)}>
-            <Tab icon={<ScienceIcon />} label="Annotations" />
-            <Tab icon={<LocalHospitalIcon />} label="Clinical Significance" />
-            <Tab icon={<AssignmentIcon />} label="Drug Responses" />
-            <Tab icon={<AssignmentIcon />} label="COSMIC Data" />
-          </Tabs>
-        </Box>
-
-        <CardContent>
-          {/* Annotations Tab */}
-          {activeTab === 0 && (
-            <Box>
-              <Typography variant="h6" gutterBottom>
-                Variant Annotations
-              </Typography>
-              {variant.annotations && variant.annotations.length > 0 ? (
-                <TableContainer component={Paper}>
-                  <Table>
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>Annotation Type</TableCell>
-                        <TableCell>Pathogenic</TableCell>
-                        <TableCell>Drug Target</TableCell>
-                        <TableCell>COSMIC Data</TableCell>
-                        <TableCell>Pathogenicity Score</TableCell>
-                        <TableCell>Drug Response Score</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {variant.annotations.map((annotation) => (
-                        <TableRow key={annotation.id}>
-                          <TableCell>{annotation.annotation_version}</TableCell>
-                          <TableCell>
-                            <Chip
-                              label={annotation.is_pathogenic ? 'Yes' : 'No'}
-                              color={annotation.is_pathogenic ? 'error' : 'default'}
-                              size="small"
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <Chip
-                              label={annotation.is_drug_target ? 'Yes' : 'No'}
-                              color={annotation.is_drug_target ? 'success' : 'default'}
-                              size="small"
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <Chip
-                              label={annotation.has_cosmic_data ? 'Yes' : 'No'}
-                              color={annotation.has_cosmic_data ? 'info' : 'default'}
-                              size="small"
-                            />
-                          </TableCell>
-                          <TableCell>
-                            {annotation.pathogenicity_score?.toFixed(3) || 'N/A'}
-                          </TableCell>
-                          <TableCell>
-                            {annotation.drug_response_score?.toFixed(3) || 'N/A'}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              ) : (
-                <Typography color="text.secondary">
-                  No annotations available for this variant.
-                </Typography>
-              )}
-            </Box>
-          )}
-
-          {/* Clinical Significance Tab */}
-          {activeTab === 1 && (
-            <Box>
-              <Typography variant="h6" gutterBottom>
-                Clinical Significance
-              </Typography>
-              {variant.clinical_significance && variant.clinical_significance.length > 0 ? (
-                <TableContainer component={Paper}>
-                  <Table>
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>Significance</TableCell>
-                        <TableCell>Review Status</TableCell>
-                        <TableCell>ClinVar ID</TableCell>
-                        <TableCell>Evidence Level</TableCell>
-                        <TableCell>Phenotype</TableCell>
-                        <TableCell>Review Date</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {variant.clinical_significance.map((cs) => (
-                        <TableRow key={cs.id}>
-                          <TableCell>
-                            <Chip
-                              label={cs.significance.replace('_', ' ').toUpperCase()}
-                              color={getSignificanceColor(cs.significance)}
-                              size="small"
-                            />
-                          </TableCell>
-                          <TableCell>{cs.review_status || 'N/A'}</TableCell>
-                          <TableCell>{cs.clinvar_id || 'N/A'}</TableCell>
-                          <TableCell>{cs.evidence_level || 'N/A'}</TableCell>
-                          <TableCell>{cs.phenotype || 'N/A'}</TableCell>
-                          <TableCell>{cs.review_date || 'N/A'}</TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              ) : (
-                <Typography color="text.secondary">
-                  No clinical significance data available for this variant.
-                </Typography>
-              )}
-            </Box>
-          )}
-
-          {/* Drug Responses Tab */}
-          {activeTab === 2 && (
-            <Box>
-              <Typography variant="h6" gutterBottom>
-                Drug Responses
-              </Typography>
-              {variant.drug_responses && variant.drug_responses.length > 0 ? (
-                <TableContainer component={Paper}>
-                  <Table>
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>Drug Name</TableCell>
-                        <TableCell>Response Type</TableCell>
-                        <TableCell>Evidence Level</TableCell>
-                        <TableCell>Evidence Direction</TableCell>
-                        <TableCell>Cancer Type</TableCell>
-                        <TableCell>Tissue Type</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {variant.drug_responses.map((dr) => (
-                        <TableRow key={dr.id}>
-                          <TableCell>{dr.drug_name}</TableCell>
-                          <TableCell>{dr.response_type}</TableCell>
-                          <TableCell>{dr.evidence_level}</TableCell>
-                          <TableCell>{dr.evidence_direction}</TableCell>
-                          <TableCell>{dr.cancer_type || 'N/A'}</TableCell>
-                          <TableCell>{dr.tissue_type || 'N/A'}</TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              ) : (
-                <Typography color="text.secondary">
-                  No drug response data available for this variant.
-                </Typography>
-              )}
-            </Box>
-          )}
-
-          {/* COSMIC Data Tab */}
-          {activeTab === 3 && (
-            <Box>
-              <Typography variant="h6" gutterBottom>
-                COSMIC Data
-              </Typography>
-              {variant.cosmic_data && variant.cosmic_data.length > 0 ? (
-                <TableContainer component={Paper}>
-                  <Table>
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>COSMIC ID</TableCell>
-                        <TableCell>Primary Site</TableCell>
-                        <TableCell>Histology</TableCell>
-                        <TableCell>Mutation Frequency</TableCell>
-                        <TableCell>Mutation Count</TableCell>
-                        <TableCell>Sample Source</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {variant.cosmic_data.map((cosmic) => (
-                        <TableRow key={cosmic.id}>
-                          <TableCell>{cosmic.cosmic_id}</TableCell>
-                          <TableCell>{cosmic.primary_site || 'N/A'}</TableCell>
-                          <TableCell>{cosmic.primary_histology || 'N/A'}</TableCell>
-                          <TableCell>{cosmic.mutation_frequency?.toFixed(4) || 'N/A'}</TableCell>
-                          <TableCell>{cosmic.mutation_count || 'N/A'}</TableCell>
-                          <TableCell>{cosmic.sample_source || 'N/A'}</TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              ) : (
-                <Typography color="text.secondary">
-                  No COSMIC data available for this variant.
-                </Typography>
-              )}
-            </Box>
-          )}
-        </CardContent>
-      </Card>
-    </Box>
+    <span
+      className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${
+        colors[impact] || 'bg-gray-100 text-gray-800'
+      }`}
+    >
+      {impact}
+    </span>
   );
-};
+}
 
-export default VariantDetail;
+function ClinicalSignificanceCard({ data }) {
+  return (
+    <div className="border border-gray-200 rounded-lg p-4">
+      <div className="flex items-start justify-between mb-3">
+        <h3 className="font-semibold text-gray-900">{data.significance}</h3>
+        {data.is_pathogenic && (
+          <div className="flex items-center gap-1 px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs font-semibold">
+            <AlertCircle size={14} />
+            Pathogenic
+          </div>
+        )}
+      </div>
+      <div className="grid grid-cols-2 gap-2 text-sm">
+        <div>
+          <p className="text-gray-600">Review Status</p>
+          <p className="font-medium text-gray-900">{data.review_status || '-'}</p>
+        </div>
+        <div>
+          <p className="text-gray-600">ClinVar ID</p>
+          <p className="font-medium text-gray-900">{data.clinvar_id || '-'}</p>
+        </div>
+      </div>
+      {data.phenotype && (
+        <div className="mt-3 pt-3 border-t border-gray-200">
+          <p className="text-sm text-gray-600">
+            <strong>Phenotype:</strong> {data.phenotype}
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function DrugResponseCard({ data }) {
+  return (
+    <div className="border border-gray-200 rounded-lg p-4">
+      <div className="flex items-start justify-between mb-3">
+        <h3 className="font-semibold text-gray-900">{data.drug_name}</h3>
+        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+          data.response_type === 'sensitivity'
+            ? 'bg-green-100 text-green-700'
+            : 'bg-red-100 text-red-700'
+        }`}>
+          {data.response_type}
+        </span>
+      </div>
+      <div className="grid grid-cols-2 gap-2 text-sm">
+        <div>
+          <p className="text-gray-600">Evidence Level</p>
+          <p className="font-medium text-gray-900">{data.evidence_level}</p>
+        </div>
+        <div>
+          <p className="text-gray-600">Cancer Type</p>
+          <p className="font-medium text-gray-900">{data.cancer_type || '-'}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
