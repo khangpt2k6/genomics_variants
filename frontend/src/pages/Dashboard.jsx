@@ -1,182 +1,233 @@
 import React from 'react';
-import {
-  Grid,
-  Card,
-  CardContent,
-  Typography,
-  Box,
-} from '@mui/material';
-import {
-  Science as ScienceIcon,
-  Assignment as AssignmentIcon,
-  CloudUpload as CloudUploadIcon,
-  TrendingUp as TrendingUpIcon,
-} from '@mui/icons-material';
 import { useQuery } from '@tanstack/react-query';
-import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
+import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import LoadingSpinner from '../components/LoadingSpinner';
+import  api  from '../services/api';
+import { Dna, Network, FileText, TrendingUp, AlertCircle } from 'lucide-react';
 
-import { variantsApi } from '../services/variants';
-import { annotationsApi } from '../services/annotations';
-import StatCard from '../components/StatCard';
-import VariantChart from '../components/VariantChart';
-import RecentVariants from '../components/RecentVariants';
-import { 
-  QUERY_KEYS, 
-  THEME, 
-  PAGINATION,
-  ANIMATION
-} from '../constants';
+export default function Dashboard() {
+  const { data: stats, isLoading } = useQuery({
+    queryKey: ['dashboard-stats'],
+    queryFn: async () => {
+      const response = await api.get('/variants/');
+      const variants = response.data.results || [];
+      
+      // Calculate statistics
+      const impactCounts = {
+        HIGH: 0,
+        MODERATE: 0,
+        LOW: 0,
+        MODIFIER: 0,
+      };
 
-/**
- * Dashboard component displaying variant statistics and recent data.
- * 
- * This component shows key metrics, charts, and recent variants
- * to provide an overview of the variant database.
- */
-const Dashboard = () => {
-  const { data: variantStats, isLoading: variantStatsLoading } = useQuery({
-    queryKey: [QUERY_KEYS.VARIANT_STATISTICS],
-    queryFn: () => variantsApi.getStatistics()
+      const geneCounts = {};
+      let pathogenicCount = 0;
+
+      variants.forEach(v => {
+        if (v.impact) impactCounts[v.impact]++;
+        if (v.gene_symbol) {
+          geneCounts[v.gene_symbol] = (geneCounts[v.gene_symbol] || 0) + 1;
+        }
+        if (v.clinical_significance?.some(cs => cs.is_pathogenic)) {
+          pathogenicCount++;
+        }
+      });
+
+      return {
+        totalVariants: variants.length,
+        pathogenicVariants: pathogenicCount,
+        impactCounts,
+        topGenes: Object.entries(geneCounts)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 5)
+          .map(([gene, count]) => ({ name: gene, count })),
+      };
+    },
   });
 
-  const { data: annotationStats, isLoading: annotationStatsLoading } = useQuery({
-    queryKey: [QUERY_KEYS.ANNOTATION_STATISTICS],
-    queryFn: () => annotationsApi.getStatistics()
-  });
+  if (isLoading) return <LoadingSpinner />;
 
-  const { data: recentVariants, isLoading: recentVariantsLoading } = useQuery({
-    queryKey: [QUERY_KEYS.RECENT_VARIANTS],
-    queryFn: () => variantsApi.getVariants({ 
-      page_size: 5, 
-      ordering: '-created_at' 
-    })
-  });
+  const impactData = stats ? [
+    { name: 'HIGH', value: stats.impactCounts.HIGH },
+    { name: 'MODERATE', value: stats.impactCounts.MODERATE },
+    { name: 'LOW', value: stats.impactCounts.LOW },
+    { name: 'MODIFIER', value: stats.impactCounts.MODIFIER },
+  ] : [];
 
   return (
-    <Box sx={{ background: 'transparent' }}>
-      <Typography 
-        variant="h4" 
-        gutterBottom 
-        sx={{ 
-          mb: 4,
-          fontWeight: 700,
-          color: '#000000',
-        }}
-      >
-        Dashboard
-      </Typography>
+    <div className="space-y-6">
+      {/* Header */}
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+        <p className="text-gray-600 mt-1">Welcome to Moffitt Variants Analysis</p>
+      </div>
 
-      {/* Statistics Cards */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12} sm={6} md={3}>
-          <StatCard
-            title="Total Variants"
-            value={variantStats?.total_variants || 0}
-            icon={<ScienceIcon />}
-            color="primary"
-            loading={variantStatsLoading}
-          />
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <StatCard
-            title="Pathogenic Variants"
-            value={variantStats?.pathogenic_count || 0}
-            icon={<TrendingUpIcon />}
-            color="error"
-            loading={variantStatsLoading}
-          />
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <StatCard
-            title="Drug Targets"
-            value={variantStats?.drug_target_count || 0}
-            icon={<AssignmentIcon />}
-            color="success"
-            loading={variantStatsLoading}
-          />
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <StatCard
-            title="Annotations"
-            value={annotationStats?.total_annotations || 0}
-            icon={<CloudUploadIcon />}
-            color="info"
-            loading={annotationStatsLoading}
-          />
-        </Grid>
-      </Grid>
+      {/* Key Metrics */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <MetricCard
+          icon={Dna}
+          label="Total Variants"
+          value={stats?.totalVariants || 0}
+          color="blue"
+        />
+        <MetricCard
+          icon={AlertCircle}
+          label="Pathogenic"
+          value={stats?.pathogenicVariants || 0}
+          color="red"
+        />
+        <MetricCard
+          icon={TrendingUp}
+          label="High Impact"
+          value={stats?.impactCounts.HIGH || 0}
+          color="orange"
+        />
+        <MetricCard
+          icon={Network}
+          label="Unique Genes"
+          value={stats?.topGenes?.length || 0}
+          color="purple"
+        />
+      </div>
 
-      {/* Charts and Recent Data */}
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={8}>
-          <Card
-            sx={{
-              background: '#ffffff',
-              border: '1px solid #e0e0e0',
-              borderRadius: 2,
-              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-              transition: 'all 0.2s ease',
-              '&:hover': {
-                transform: 'translateY(-2px)',
-                boxShadow: '0 4px 16px rgba(0, 0, 0, 0.15)',
-              }
-            }}
-          >
-            <CardContent sx={{ p: 3 }}>
-              <Typography 
-                variant="h6" 
-                gutterBottom
-                sx={{
-                  color: '#000000',
-                  fontWeight: 600,
-                  mb: 3
-                }}
-              >
-                Variant Distribution
-              </Typography>
-              <VariantChart data={variantStats} loading={variantStatsLoading} />
-            </CardContent>
-          </Card>
-        </Grid>
-        
-        <Grid item xs={12} md={4}>
-          <Card
-            sx={{
-              background: '#ffffff',
-              border: '1px solid #e0e0e0',
-              borderRadius: 2,
-              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-              transition: 'all 0.2s ease',
-              '&:hover': {
-                transform: 'translateY(-2px)',
-                boxShadow: '0 4px 16px rgba(0, 0, 0, 0.15)',
-              }
-            }}
-          >
-            <CardContent sx={{ p: 3 }}>
-              <Typography 
-                variant="h6" 
-                gutterBottom
-                sx={{
-                  color: '#000000',
-                  fontWeight: 600,
-                  mb: 3
-                }}
-              >
-                Recent Variants
-              </Typography>
-              <RecentVariants 
-                variants={recentVariants?.results || []} 
-                loading={recentVariantsLoading} 
-              />
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
-    </Box>
+      {/* Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Impact Distribution */}
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            Variant Impact Distribution
+          </h2>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={impactData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="value" fill="#0ea5e9" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Top Genes */}
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            Top Genes by Variant Count
+          </h2>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart
+              data={stats?.topGenes || []}
+              layout="vertical"
+              margin={{ left: 100 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis type="number" />
+              <YAxis dataKey="name" type="category" width={100} />
+              <Tooltip />
+              <Bar dataKey="count" fill="#8b5cf6" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* Quick Actions */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <QuickActionCard
+          icon={Dna}
+          title="Browse Variants"
+          description="View and filter all genetic variants"
+          link="/variants"
+          color="blue"
+        />
+        <QuickActionCard
+          icon={Network}
+          title="Variant Network"
+          description="Explore gene-variant relationships"
+          link="/network"
+          color="purple"
+        />
+        <QuickActionCard
+          icon={FileText}
+          title="Annotations"
+          description="View detailed variant annotations"
+          link="/annotations"
+          color="green"
+        />
+      </div>
+
+      {/* Recent Activity */}
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">
+          System Information
+        </h2>
+        <div className="space-y-3">
+          <InfoRow label="Database" value="SQLite (Development)" />
+          <InfoRow label="API Status" value="Active" status="success" />
+          <InfoRow label="Last Updated" value="Just now" />
+        </div>
+      </div>
+    </div>
   );
-};
+}
 
-Dashboard.propTypes = {};
+function MetricCard({ icon: Icon, label, value, color }) {
+  const colorClasses = {
+    blue: 'bg-blue-50 text-blue-600',
+    red: 'bg-red-50 text-red-600',
+    orange: 'bg-orange-50 text-orange-600',
+    purple: 'bg-purple-50 text-purple-600',
+  };
 
-export default Dashboard;
+  return (
+    <div className="bg-white rounded-lg shadow-md p-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-gray-600 text-sm font-medium">{label}</p>
+          <p className="text-3xl font-bold text-gray-900 mt-2">{value}</p>
+        </div>
+        <div className={`p-3 rounded-lg ${colorClasses[color]}`}>
+          <Icon size={24} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function QuickActionCard({ icon: Icon, title, description, link, color }) {
+  const colorClasses = {
+    blue: 'hover:border-blue-300 hover:bg-blue-50',
+    purple: 'hover:border-purple-300 hover:bg-purple-50',
+    green: 'hover:border-green-300 hover:bg-green-50',
+  };
+
+  return (
+    <Link
+      to={link}
+      className={`bg-white rounded-lg shadow-md p-6 border-2 border-transparent transition-all ${colorClasses[color]}`}
+    >
+      <div className="flex items-start gap-4">
+        <div className={`p-3 rounded-lg ${color === 'blue' ? 'bg-blue-100 text-blue-600' : color === 'purple' ? 'bg-purple-100 text-purple-600' : 'bg-green-100 text-green-600'}`}>
+          <Icon size={24} />
+        </div>
+        <div>
+          <h3 className="font-semibold text-gray-900">{title}</h3>
+          <p className="text-sm text-gray-600 mt-1">{description}</p>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+function InfoRow({ label, value, status }) {
+  return (
+    <div className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
+      <span className="text-gray-600">{label}</span>
+      <div className="flex items-center gap-2">
+        {status === 'success' && (
+          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+        )}
+        <span className="font-medium text-gray-900">{value}</span>
+      </div>
+    </div>
+  );
+}
