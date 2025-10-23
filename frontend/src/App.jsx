@@ -1,58 +1,45 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Routes, Route } from 'react-router-dom';
-import { Box, useMediaQuery, useTheme } from '@mui/material';
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
-import MobileNav from './components/MobileNav';
 import ErrorBoundary from './components/ErrorBoundary';
 import Dashboard from './pages/Dashboard';
 import Variants from './pages/Variants';
 import Annotations from './pages/Annotations';
 import GalaxyIntegration from './pages/GalaxyIntegration';
 import VariantDetail from './pages/VariantDetail';
+import VariantNetwork from './pages/VariantNetwork';
 
 function App() {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   return (
-    <Box sx={{ 
-      display: 'flex', 
-      minHeight: '100vh',
-      background: '#ffffff',
-    }}>
-      {/* Mobile Navigation */}
-      <MobileNav />
+    <div className="flex h-screen bg-gray-50">
+      {/* Sidebar */}
+      <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
       
-      {/* Desktop Sidebar */}
-      {!isMobile && <Sidebar />}
-      
-      <Box sx={{ 
-        flexGrow: 1, 
-        display: 'flex', 
-        flexDirection: 'column',
-        pt: { xs: 7, md: 0 } // Add top padding for mobile nav
-      }}>
-        {/* Desktop Navbar */}
-        {!isMobile && <Navbar />}
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Navbar */}
+        <Navbar onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
         
-        <Box component="main" sx={{ 
-          flexGrow: 1, 
-          p: { xs: 2, md: 3 },
-          background: 'transparent'
-        }}>
-          <ErrorBoundary>
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/variants" element={<Variants />} />
-              <Route path="/variants/:id" element={<VariantDetail />} />
-              <Route path="/annotations" element={<Annotations />} />
-              <Route path="/galaxy" element={<GalaxyIntegration />} />
-            </Routes>
-          </ErrorBoundary>
-        </Box>
-      </Box>
-    </Box>
+        {/* Page Content */}
+        <main className="flex-1 overflow-auto">
+          <div className="p-4 md:p-6 lg:p-8">
+            <ErrorBoundary>
+              <Routes>
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/variants" element={<Variants />} />
+                <Route path="/variants/:id" element={<VariantDetail />} />
+                <Route path="/network" element={<VariantNetwork />} />
+                <Route path="/annotations" element={<Annotations />} />
+                <Route path="/galaxy" element={<GalaxyIntegration />} />
+              </Routes>
+            </ErrorBoundary>
+          </div>
+        </main>
+      </div>
+    </div>
   );
 }
 

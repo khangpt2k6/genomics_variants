@@ -1,0 +1,124 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:15-alpine
+    container_name: moffitt-db
+    environment:
+      POSTGRES_DB: moffitt_variants
+      POSTGRES_USER: moffitt_user
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U moffitt_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - moffitt-network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: moffitt-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - moffitt-network
+
+  # Django Backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: moffitt-backend
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py collectstatic --noinput &&
+             gunicorn --bind 0.0.0.0:8000 --workers 4 variants_project.wsgi:application"
+    environment:
+      DEBUG: ${DEBUG:-False}
+      SECRET_KEY: ${SECRET_KEY:-change-me-in-production}
+      DB_ENGINE: postgresql
+      DB_NAME: moffitt_variants
+      DB_USER: moffitt_user
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      DB_HOST: db
+      DB_PORT: 5432
+      CACHE_BACKEND: redis
+      REDIS_URL: redis://redis:6379/1
+      GALAXY_URL: ${GALAXY_URL:-}
+      GALAXY_API_KEY: ${GALAXY_API_KEY:-}
+      CLINVAR_API_KEY: ${CLINVAR_API_KEY:-}
+      CIVIC_API_URL: ${CIVIC_API_URL:-https://civicdb.org/api}
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+      - static_volume:/app/staticfiles
+    networks:
+      - moffitt-network
+    restart: unless-stopped
+
+  # React Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: moffitt-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      VITE_API_URL: http://backend:8000/api
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - moffitt-network
+    restart: unless-stopped
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: moffitt-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - static_volume:/app/staticfiles:ro
+      - ./frontend/dist:/app/frontend:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      - moffitt-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
+  static_volume:
+
+networks:
+  moffitt-network:
+    driver: bridge
