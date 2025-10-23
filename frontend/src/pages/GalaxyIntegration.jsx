@@ -1,242 +1,261 @@
-import React from 'react';
-import {
-  Box,
-  Typography,
-  Card,
-  CardContent,
-  Grid,
-  Button,
-  Chip,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-} from '@mui/material';
-import {
-  CloudUpload as CloudUploadIcon,
-  Refresh as RefreshIcon,
-  PlayArrow as PlayIcon,
-  Stop as StopIcon,
-} from '@mui/icons-material';
+import React, { useState } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import LoadingSpinner from "../components/LoadingSpinner";
+import api from "../services/api";
+import { Play, AlertCircle, CheckCircle, Clock } from "lucide-react";
 
-const GalaxyIntegration = () => {
-  // Mock data for demonstration
-  const galaxyInstances = [
-    {
-      id: 1,
-      name: 'Cancer Center Galaxy',
-      url: 'https://galaxy.moffitt.org',
-      status: 'active',
-      lastSync: '2024-01-15T10:30:00Z',
-      datasets: 1250,
-      workflows: 45,
-    },
-    {
-      id: 2,
-      name: 'Public Galaxy',
-      url: 'https://usegalaxy.org',
-      status: 'inactive',
-      lastSync: '2024-01-10T15:45:00Z',
-      datasets: 890,
-      workflows: 23,
-    },
-  ];
+export default function GalaxyIntegration() {
+  const [selectedWorkflow, setSelectedWorkflow] = useState(null);
 
-  const recentDatasets = [
-    {
-      id: 1,
-      name: 'Patient_001_variants.vcf',
-      type: 'VCF',
-      size: '2.5 MB',
-      status: 'processed',
-      created: '2024-01-15T10:30:00Z',
+  const {
+    data: workflowsData,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["galaxy-workflows"],
+    queryFn: async () => {
+      const response = await api.get("/galaxy/workflows/");
+      return response.data;
     },
-    {
-      id: 2,
-      name: 'Cohort_analysis_results.txt',
-      type: 'TXT',
-      size: '1.2 MB',
-      status: 'processing',
-      created: '2024-01-15T09:15:00Z',
-    },
-    {
-      id: 3,
-      name: 'Annotation_output.csv',
-      type: 'CSV',
-      size: '850 KB',
-      status: 'completed',
-      created: '2024-01-14T16:20:00Z',
-    },
-  ];
+  });
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'active':
-      case 'completed':
-      case 'processed':
-        return 'success';
-      case 'processing':
-        return 'info';
-      case 'inactive':
-      case 'failed':
-        return 'error';
-      case 'pending':
-        return 'warning';
-      default:
-        return 'default';
-    }
-  };
+  const runWorkflowMutation = useMutation({
+    mutationFn: async (workflowId) => {
+      const response = await api.post(
+        `/galaxy/workflows/${workflowId}/run/`,
+        {}
+      );
+      return response.data;
+    },
+  });
+
+  if (isLoading) return <LoadingSpinner />;
+
+  const workflows = workflowsData?.results || [];
 
   return (
-    <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h4">
-          Galaxy Integration
-        </Typography>
-        <Button
-          variant="contained"
-          startIcon={<CloudUploadIcon />}
-          onClick={() => {
-            // Implement sync with Galaxy
-            console.log('Sync with Galaxy');
-          }}
-        >
-          Sync with Galaxy
-        </Button>
-      </Box>
+    <div className="space-y-6">
+      {/* Header */}
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900">Galaxy Integration</h1>
+        <p className="text-gray-600 mt-1">
+          Run bioinformatics workflows on your variant data
+        </p>
+      </div>
 
-      {/* Galaxy Instances */}
-      <Card sx={{ mb: 3 }}>
-        <CardContent>
-          <Typography variant="h6" gutterBottom>
-            Galaxy Instances
-          </Typography>
-          <Grid container spacing={2}>
-            {galaxyInstances.map((instance) => (
-              <Grid item xs={12} md={6} key={instance.id}>
-                <Card variant="outlined">
-                  <CardContent>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                      <Typography variant="h6">{instance.name}</Typography>
-                      <Chip
-                        label={instance.status}
-                        color={getStatusColor(instance.status)}
-                        size="small"
-                      />
-                    </Box>
-                    <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                      URL: {instance.url}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                      Last Sync: {new Date(instance.lastSync).toLocaleString()}
-                    </Typography>
-                    <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
-                      <Typography variant="body2">
-                        <strong>{instance.datasets}</strong> datasets
-                      </Typography>
-                      <Typography variant="body2">
-                        <strong>{instance.workflows}</strong> workflows
-                      </Typography>
-                    </Box>
-                    <Box sx={{ mt: 2 }}>
-                      <Button
-                        size="small"
-                        startIcon={<RefreshIcon />}
-                        onClick={() => console.log(`Sync ${instance.name}`)}
-                      >
-                        Sync Now
-                      </Button>
-                    </Box>
-                  </CardContent>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
-        </CardContent>
-      </Card>
+      {/* Error State */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
+          <AlertCircle
+            className="text-red-600 flex-shrink-0 mt-0.5"
+            size={20}
+          />
+          <div>
+            <h3 className="font-medium text-red-900">
+              Error loading workflows
+            </h3>
+            <p className="text-red-700 text-sm mt-1">{error.message}</p>
+          </div>
+        </div>
+      )}
 
-      {/* Recent Datasets */}
-      <Card>
-        <CardContent>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-            <Typography variant="h6">
-              Recent Datasets
-            </Typography>
-            <Button
-              startIcon={<RefreshIcon />}
-              onClick={() => console.log('Refresh datasets')}
-            >
-              Refresh
-            </Button>
-          </Box>
+      {/* Info Box */}
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
+        <AlertCircle className="text-blue-600 flex-shrink-0 mt-0.5" size={20} />
+        <div>
+          <h3 className="font-medium text-blue-900">Galaxy Connection</h3>
+          <p className="text-blue-700 text-sm mt-1">
+            Connect to Galaxy to run advanced bioinformatics workflows on your
+            variant data.
+          </p>
+        </div>
+      </div>
 
-          <TableContainer component={Paper}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Name</TableCell>
-                  <TableCell>Type</TableCell>
-                  <TableCell>Size</TableCell>
-                  <TableCell>Status</TableCell>
-                  <TableCell>Created</TableCell>
-                  <TableCell>Actions</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {recentDatasets.map((dataset) => (
-                  <TableRow key={dataset.id}>
-                    <TableCell>
-                      <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>
-                        {dataset.name}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Chip label={dataset.type} size="small" variant="outlined" />
-                    </TableCell>
-                    <TableCell>{dataset.size}</TableCell>
-                    <TableCell>
-                      <Chip
-                        label={dataset.status}
-                        color={getStatusColor(dataset.status)}
-                        size="small"
-                      />
-                    </TableCell>
-                    <TableCell>
-                      {new Date(dataset.created).toLocaleString()}
-                    </TableCell>
-                    <TableCell>
-                      {dataset.status === 'processing' && (
-                        <Button
-                          size="small"
-                          startIcon={<StopIcon />}
-                          onClick={() => console.log(`Stop processing ${dataset.name}`)}
-                          color="error"
-                        >
-                          Stop
-                        </Button>
-                      )}
-                      {dataset.status === 'completed' && (
-                        <Button
-                          size="small"
-                          startIcon={<PlayIcon />}
-                          onClick={() => console.log(`Process ${dataset.name}`)}
-                        >
-                          Process
-                        </Button>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </CardContent>
-      </Card>
-    </Box>
+      {/* Workflows Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {workflows.length > 0 ? (
+          workflows.map((workflow) => (
+            <WorkflowCard
+              key={workflow.id}
+              workflow={workflow}
+              isSelected={selectedWorkflow?.id === workflow.id}
+              onSelect={() => setSelectedWorkflow(workflow)}
+              onRun={() => runWorkflowMutation.mutate(workflow.id)}
+              isRunning={runWorkflowMutation.isPending}
+            />
+          ))
+        ) : (
+          <div className="col-span-full bg-white rounded-lg shadow-md p-12 text-center">
+            <AlertCircle className="mx-auto text-gray-400 mb-4" size={48} />
+            <p className="text-gray-500 text-lg">No workflows available</p>
+            <p className="text-gray-400 text-sm mt-2">
+              Configure Galaxy integration to see available workflows
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* Selected Workflow Details */}
+      {selectedWorkflow && (
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <h2 className="text-xl font-bold text-gray-900 mb-4">
+            Workflow Details
+          </h2>
+          <WorkflowDetails workflow={selectedWorkflow} />
+        </div>
+      )}
+
+      {/* Recent Runs */}
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">
+          Recent Runs
+        </h2>
+        <div className="space-y-3">
+          <RunItem
+            name="Variant Annotation Pipeline"
+            status="completed"
+            timestamp="2 hours ago"
+          />
+          <RunItem
+            name="Quality Control Analysis"
+            status="running"
+            timestamp="30 minutes ago"
+          />
+          <RunItem
+            name="Population Frequency Analysis"
+            status="completed"
+            timestamp="1 day ago"
+          />
+        </div>
+      </div>
+    </div>
   );
-};
+}
 
-export default GalaxyIntegration;
+function WorkflowCard({ workflow, isSelected, onSelect, onRun, isRunning }) {
+  return (
+    <div
+      onClick={onSelect}
+      className={`bg-white rounded-lg shadow-md p-6 cursor-pointer transition-all border-2 ${
+        isSelected
+          ? "border-primary-500 bg-primary-50"
+          : "border-transparent hover:shadow-lg"
+      }`}
+    >
+      <div className="flex items-start justify-between mb-4">
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900">
+            {workflow.name}
+          </h3>
+          <p className="text-sm text-gray-600 mt-1">{workflow.description}</p>
+        </div>
+      </div>
+
+      <div className="mb-4 space-y-2">
+        <InfoItem label="Version" value={workflow.version || "-"} />
+        <InfoItem label="Status" value={workflow.status || "Available"} />
+      </div>
+
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          onRun();
+        }}
+        disabled={isRunning}
+        className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+      >
+        <Play size={18} />
+        {isRunning ? "Running..." : "Run Workflow"}
+      </button>
+    </div>
+  );
+}
+
+function WorkflowDetails({ workflow }) {
+  return (
+    <div className="space-y-6">
+      {/* Basic Information */}
+      <div>
+        <h3 className="font-semibold text-gray-900 mb-3">Information</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <DetailRow label="Name" value={workflow.name} />
+          <DetailRow label="Version" value={workflow.version || "-"} />
+          <DetailRow label="Status" value={workflow.status || "Available"} />
+          <DetailRow label="Type" value={workflow.type || "-"} />
+        </div>
+      </div>
+
+      {/* Description */}
+      <div>
+        <h3 className="font-semibold text-gray-900 mb-3">Description</h3>
+        <p className="text-gray-600 bg-gray-50 rounded-lg p-4">
+          {workflow.description || "No description available"}
+        </p>
+      </div>
+
+      {/* Parameters */}
+      {workflow.parameters && (
+        <div>
+          <h3 className="font-semibold text-gray-900 mb-3">Parameters</h3>
+          <div className="bg-gray-50 rounded-lg p-4">
+            <pre className="text-sm text-gray-600 overflow-auto">
+              {JSON.stringify(workflow.parameters, null, 2)}
+            </pre>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function DetailRow({ label, value }) {
+  return (
+    <div className="bg-gray-50 rounded-lg p-3">
+      <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">
+        {label}
+      </p>
+      <p className="text-sm font-medium text-gray-900 mt-1">{value}</p>
+    </div>
+  );
+}
+
+function InfoItem({ label, value }) {
+  return (
+    <div className="flex justify-between items-center">
+      <span className="text-sm text-gray-600">{label}</span>
+      <span className="text-sm font-medium text-gray-900">{value}</span>
+    </div>
+  );
+}
+
+function RunItem({ name, status, timestamp }) {
+  const statusConfig = {
+    completed: {
+      icon: CheckCircle,
+      color: "text-green-600",
+      bg: "bg-green-50",
+    },
+    running: { icon: Clock, color: "text-blue-600", bg: "bg-blue-50" },
+    failed: { icon: AlertCircle, color: "text-red-600", bg: "bg-red-50" },
+  };
+
+  const config = statusConfig[status] || statusConfig.completed;
+  const Icon = config.icon;
+
+  return (
+    <div
+      className={`${config.bg} rounded-lg p-4 flex items-center justify-between`}
+    >
+      <div className="flex items-center gap-3">
+        <Icon className={config.color} size={20} />
+        <div>
+          <p className="font-medium text-gray-900">{name}</p>
+          <p className="text-sm text-gray-600">{timestamp}</p>
+        </div>
+      </div>
+      <span className={`text-xs font-semibold uppercase ${config.color}`}>
+        {status}
+      </span>
+    </div>
+  );
+}
