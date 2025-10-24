@@ -1,9 +1,3 @@
-/**
- * API service configuration and axios instance.
- * 
- * This module provides a configured axios instance with interceptors
- * for authentication, error handling, and request/response processing.
- */
 
 import axios from 'axios';
 import { API_CONFIG, STORAGE_KEYS, ROUTES } from '../constants';
