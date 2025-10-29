@@ -308,3 +308,60 @@ else:
         }
     }
 
+# =============================================================================
+# AWS CONFIGURATION
+# =============================================================================
+
+USE_AWS = os.getenv('USE_AWS', 'False').lower() == 'true'
+
+if USE_AWS:
+    INSTALLED_APPS += ['storages']
+    INSTALLED_APPS += ['django_celery_beat']
+    INSTALLED_APPS += ['django_celery_results']
+    
+    AWS_REGION = os.getenv('AWS_REGION', 'us-east-1')
+    AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_S3_BUCKET_NAME', 'moffitt-variants')
+    AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
+    AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
+    
+    AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
+    AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
+    
+    S3_USE_SIGV4 = True
+    AWS_S3_SIGNATURE_VERSION = 's3v4'
+    AWS_S3_ADDRESSING_STYLE = 'virtual'
+    
+    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+    STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/static/'
+    STATIC_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+    
+    SQS_QUEUE_CONFIG = {
+        'ANNOTATION_QUEUE': os.getenv('AWS_SQS_ANNOTATION_QUEUE', 'moffitt-annotation-jobs'),
+        'SYNC_QUEUE': os.getenv('AWS_SQS_SYNC_QUEUE', 'moffitt-sync-jobs'),
+        'UPLOAD_QUEUE': os.getenv('AWS_SQS_UPLOAD_QUEUE', 'moffitt-upload-jobs'),
+    }
+    
+    CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL', 'sqs://')
+    CELERY_BROKER_TRANSPORT_OPTIONS = {
+        'region': AWS_REGION,
+        'polling_interval': 0.1,
+        'visibility_timeout': 300,
+        'wait_time_seconds': 20,
+    }
+    CELERY_RESULT_BACKEND = 'django-db'
+    CELERY_RESULT_EXTENDED = True
+    CELERY_RESULT_BACKEND_TRANSPORT_OPTIONS = {
+        'master_name': 'mymaster'
+    }
+    
+    RDS_DB_ENGINE = os.getenv('RDS_DB_ENGINE', 'postgresql')
+    if RDS_DB_ENGINE == 'postgresql':
+        DATABASES['default'].update({
+            'HOST': os.getenv('RDS_DB_HOST', os.getenv('DB_HOST', 'localhost')),
+            'PORT': os.getenv('RDS_DB_PORT', os.getenv('DB_PORT', '5432')),
+        })
+else:
+    if CELERY_ENABLED:
+        CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL', 'redis://localhost:6379/0')
+        CELERY_RESULT_BACKEND = os.getenv('CELERY_RESULT_BACKEND', 'redis://localhost:6379/0')
+
