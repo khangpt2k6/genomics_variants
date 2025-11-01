@@ -19,9 +19,9 @@ from .filters import VariantFilter, ClinicalSignificanceFilter
 
 
 class StandardResultsSetPagination(PageNumberPagination):
-    page_size = 20
+    page_size = 100
     page_size_query_param = 'page_size'
-    max_page_size = 100
+    max_page_size = 10000
 
 
 class VariantViewSet(viewsets.ModelViewSet):
@@ -80,14 +80,33 @@ class VariantViewSet(viewsets.ModelViewSet):
         """Get variant statistics"""
         queryset = self.filter_queryset(self.get_queryset())
         
+        impact_counts = dict(queryset.values_list('impact').annotate(count=Count('id')))
+        formatted_impact_counts = {
+            'HIGH': impact_counts.get('HIGH', 0),
+            'MODERATE': impact_counts.get('MODERATE', 0),
+            'LOW': impact_counts.get('LOW', 0),
+            'MODIFIER': impact_counts.get('MODIFIER', 0),
+        }
+        
+        top_genes = list(
+            queryset.values('gene_symbol')
+            .annotate(count=Count('id'))
+            .order_by('-count')[:10]
+        )
+        top_genes_formatted = [
+            {'name': g['gene_symbol'], 'count': g['count']}
+            for g in top_genes if g['gene_symbol']
+        ]
+        
         stats = {
             'total_variants': queryset.count(),
+            'pathogenic_variants': queryset.filter(clinical_significance__significance__in=['pathogenic', 'likely_pathogenic']).count(),
+            'impact_counts': formatted_impact_counts,
             'by_chromosome': dict(queryset.values_list('chromosome').annotate(count=Count('id'))),
-            'by_impact': dict(queryset.values_list('impact').annotate(count=Count('id'))),
             'by_consequence': dict(queryset.values_list('consequence').annotate(count=Count('id'))),
             'average_quality': queryset.aggregate(avg_quality=Avg('quality_score'))['avg_quality'],
-            'pathogenic_count': queryset.filter(clinical_significance__significance__in=['pathogenic', 'likely_pathogenic']).count(),
             'drug_target_count': queryset.filter(drug_responses__isnull=False).distinct().count(),
+            'top_genes': top_genes_formatted,
         }
         
         return Response(stats)
