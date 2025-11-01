@@ -7,12 +7,14 @@ import {
   FileText,
   Zap,
   X,
+  BarChart3,
 } from 'lucide-react';
 
 const menuItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/' },
   { icon: Dna, label: 'Variants', path: '/variants' },
   { icon: Network, label: 'Variant Network', path: '/network' },
+  { icon: BarChart3, label: 'Interactive Visualization', path: '/visualize' },
   { icon: FileText, label: 'Annotations', path: '/annotations' },
   { icon: Zap, label: 'Galaxy Integration', path: '/galaxy' },
 ];

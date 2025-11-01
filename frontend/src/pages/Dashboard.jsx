@@ -1,232 +1,246 @@
-import React from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
-import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import LoadingSpinner from '../components/LoadingSpinner';
-import  api  from '../services/api';
+import React, { useState, useEffect } from 'react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Dna, Network, FileText, TrendingUp, AlertCircle } from 'lucide-react';
+import { variantsApi } from '../services/variants';
 
 export default function Dashboard() {
-  const { data: stats, isLoading } = useQuery({
-    queryKey: ['dashboard-stats'],
-    queryFn: async () => {
-      const response = await api.get('/variants/');
-      const variants = response.data.results || [];
-      
-      // Calculate statistics
-      const impactCounts = {
-        HIGH: 0,
-        MODERATE: 0,
-        LOW: 0,
-        MODIFIER: 0,
-      };
-
-      const geneCounts = {};
-      let pathogenicCount = 0;
-
-      variants.forEach(v => {
-        if (v.impact) impactCounts[v.impact]++;
-        if (v.gene_symbol) {
-          geneCounts[v.gene_symbol] = (geneCounts[v.gene_symbol] || 0) + 1;
-        }
-        if (v.clinical_significance?.some(cs => cs.is_pathogenic)) {
-          pathogenicCount++;
-        }
-      });
-
-      return {
-        totalVariants: variants.length,
-        pathogenicVariants: pathogenicCount,
-        impactCounts,
-        topGenes: Object.entries(geneCounts)
-          .sort((a, b) => b[1] - a[1])
-          .slice(0, 5)
-          .map(([gene, count]) => ({ name: gene, count })),
-      };
-    },
+  const [stats, setStats] = useState({
+    totalVariants: 0,
+    pathogenicVariants: 0,
+    impactCounts: { HIGH: 0, MODERATE: 0, LOW: 0, MODIFIER: 0 },
+    topGenes: []
   });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  if (isLoading) return <LoadingSpinner />;
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        console.log('Fetching dashboard statistics from API...');
 
-  const impactData = stats ? [
+        const statistics = await variantsApi.getStatistics();
+        console.log('API response:', statistics);
+
+        // Transform API data to match component expectations
+        const transformedStats = {
+          totalVariants: statistics.total_variants || 0,
+          pathogenicVariants: statistics.pathogenic_variants || 0,
+          impactCounts: {
+            HIGH: statistics.impact_counts?.HIGH || 0,
+            MODERATE: statistics.impact_counts?.MODERATE || 0,
+            LOW: statistics.impact_counts?.LOW || 0,
+            MODIFIER: statistics.impact_counts?.MODIFIER || 0,
+          },
+          topGenes: statistics.top_genes?.map(gene => ({
+            name: gene.name || gene.gene_symbol,
+            count: gene.count || gene.variant_count
+          })) || []
+        };
+
+        setStats(transformedStats);
+        console.log('Transformed stats:', transformedStats);
+      } catch (err) {
+        console.error('Error fetching dashboard data:', err);
+        setError('Failed to load dashboard data. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+
+  const impactData = [
     { name: 'HIGH', value: stats.impactCounts.HIGH },
     { name: 'MODERATE', value: stats.impactCounts.MODERATE },
     { name: 'LOW', value: stats.impactCounts.LOW },
     { name: 'MODIFIER', value: stats.impactCounts.MODIFIER },
-  ] : [];
+  ];
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white p-8 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading dashboard data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-white p-8 flex items-center justify-center">
+        <div className="text-center">
+          <AlertCircle size={48} className="text-red-500 mx-auto mb-4" />
+          <h2 className="text-xl font-semibold text-gray-800 mb-2">Error Loading Dashboard</h2>
+          <p className="text-gray-600">{error}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-600 mt-1">Welcome to Moffitt Variants Analysis</p>
-      </div>
-
-      {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <MetricCard
-          icon={Dna}
-          label="Total Variants"
-          value={stats?.totalVariants || 0}
-          color="blue"
-        />
-        <MetricCard
-          icon={AlertCircle}
-          label="Pathogenic"
-          value={stats?.pathogenicVariants || 0}
-          color="red"
-        />
-        <MetricCard
-          icon={TrendingUp}
-          label="High Impact"
-          value={stats?.impactCounts.HIGH || 0}
-          color="orange"
-        />
-        <MetricCard
-          icon={Network}
-          label="Unique Genes"
-          value={stats?.topGenes?.length || 0}
-          color="purple"
-        />
-      </div>
-
-      {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Impact Distribution */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            Variant Impact Distribution
-          </h2>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={impactData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="value" fill="#0ea5e9" />
-            </BarChart>
-          </ResponsiveContainer>
+    <div className="min-h-screen bg-white p-8">
+      <div className="max-w-7xl mx-auto space-y-8">
+        {/* Header */}
+        <div className="mb-12">
+          <h1 className="text-5xl font-bold text-black mb-3 tracking-tight">
+            Variant Analysis Dashboard
+          </h1>
         </div>
 
-        {/* Top Genes */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            Top Genes by Variant Count
-          </h2>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart
-              data={stats?.topGenes || []}
-              layout="vertical"
-              margin={{ left: 100 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis type="number" />
-              <YAxis dataKey="name" type="category" width={100} />
-              <Tooltip />
-              <Bar dataKey="count" fill="#8b5cf6" />
-            </BarChart>
-          </ResponsiveContainer>
+        {/* Key Metrics */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <MetricCard
+            icon={Dna}
+            label="Total Variants"
+            value={stats.totalVariants}
+          />
+          <MetricCard
+            icon={AlertCircle}
+            label="Pathogenic"
+            value={stats.pathogenicVariants}
+          />
+          <MetricCard
+            icon={TrendingUp}
+            label="High Impact"
+            value={stats.impactCounts.HIGH}
+          />
+          <MetricCard
+            icon={Network}
+            label="Unique Genes"
+            value={stats.topGenes.length}
+          />
         </div>
-      </div>
 
-      {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <QuickActionCard
-          icon={Dna}
-          title="Browse Variants"
-          description="View and filter all genetic variants"
-          link="/variants"
-          color="blue"
-        />
-        <QuickActionCard
-          icon={Network}
-          title="Variant Network"
-          description="Explore gene-variant relationships"
-          link="/network"
-          color="purple"
-        />
-        <QuickActionCard
-          icon={FileText}
-          title="Annotations"
-          description="View detailed variant annotations"
-          link="/annotations"
-          color="green"
-        />
-      </div>
+        {/* Charts */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Impact Distribution */}
+          <div className="backdrop-blur-xl bg-black/5 border border-black/10 rounded-2xl p-8 shadow-lg">
+            <h2 className="text-xl font-semibold text-black mb-6 flex items-center gap-2">
+              <div className="w-1 h-6 bg-black rounded-full"></div>
+              Variant Impact Distribution
+            </h2>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={impactData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#00000020" />
+                <XAxis dataKey="name" stroke="#000" tick={{ fill: '#000' }} />
+                <YAxis stroke="#000" tick={{ fill: '#000' }} />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: 'rgba(255, 255, 255, 0.95)', 
+                    border: '1px solid rgba(0, 0, 0, 0.1)',
+                    borderRadius: '8px',
+                    color: '#000'
+                  }}
+                />
+                <Bar dataKey="value" fill="#000" radius={[8, 8, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
 
-      {/* Recent Activity */}
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">
-          System Information
-        </h2>
-        <div className="space-y-3">
-          <InfoRow label="Database" value="SQLite (Development)" />
-          <InfoRow label="API Status" value="Active" status="success" />
-          <InfoRow label="Last Updated" value="Just now" />
+          {/* Top Genes */}
+          <div className="backdrop-blur-xl bg-black/5 border border-black/10 rounded-2xl p-8 shadow-lg">
+            <h2 className="text-xl font-semibold text-black mb-6 flex items-center gap-2">
+              <div className="w-1 h-6 bg-black rounded-full"></div>
+              Top Genes by Variant Count
+            </h2>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart
+                data={stats.topGenes}
+                layout="vertical"
+                margin={{ left: 80 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="#00000020" />
+                <XAxis type="number" stroke="#000" tick={{ fill: '#000' }} />
+                <YAxis 
+                  dataKey="name" 
+                  type="category" 
+                  width={80} 
+                  stroke="#000" 
+                  tick={{ fill: '#000' }}
+                />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: 'rgba(255, 255, 255, 0.95)', 
+                    border: '1px solid rgba(0, 0, 0, 0.1)',
+                    borderRadius: '8px',
+                    color: '#000'
+                  }}
+                />
+                <Bar dataKey="count" fill="#000" radius={[0, 8, 8, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <QuickActionCard
+            icon={Dna}
+            title="Browse Variants"
+            description="View and filter all genetic variants"
+          />
+          <QuickActionCard
+            icon={Network}
+            title="Variant Network"
+            description="Explore gene-variant relationships"
+          />
+          <QuickActionCard
+            icon={FileText}
+            title="Annotations"
+            description="View detailed variant annotations"
+          />
         </div>
       </div>
     </div>
   );
 }
 
-function MetricCard({ icon: Icon, label, value, color }) {
-  const colorClasses = {
-    blue: 'bg-blue-50 text-blue-600',
-    red: 'bg-red-50 text-red-600',
-    orange: 'bg-orange-50 text-orange-600',
-    purple: 'bg-purple-50 text-purple-600',
-  };
-
+function MetricCard({ icon: Icon, label, value }) {
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
+    <div className="group backdrop-blur-xl bg-black/5 border border-black/10 rounded-2xl p-5 shadow-lg hover:bg-black/10 hover:border-black/20 transition-all duration-300 cursor-pointer">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-gray-600 text-sm font-medium">{label}</p>
-          <p className="text-3xl font-bold text-gray-900 mt-2">{value}</p>
+          <p className="text-gray-600 text-xs font-medium uppercase tracking-wide">{label}</p>
+          <p className="text-3xl font-bold text-black mt-2">{value}</p>
         </div>
-        <div className={`p-3 rounded-lg ${colorClasses[color]}`}>
-          <Icon size={24} />
+        <div className="p-3 rounded-xl bg-black/10 border border-black/20 group-hover:bg-black/20 transition-all">
+          <Icon size={24} className="text-black" />
         </div>
       </div>
     </div>
   );
 }
 
-function QuickActionCard({ icon: Icon, title, description, link, color }) {
-  const colorClasses = {
-    blue: 'hover:border-blue-300 hover:bg-blue-50',
-    purple: 'hover:border-purple-300 hover:bg-purple-50',
-    green: 'hover:border-green-300 hover:bg-green-50',
-  };
-
+function QuickActionCard({ icon: Icon, title, description }) {
   return (
-    <Link
-      to={link}
-      className={`bg-white rounded-lg shadow-md p-6 border-2 border-transparent transition-all ${colorClasses[color]}`}
-    >
+    <button className="group backdrop-blur-xl bg-black/5 border border-black/10 rounded-2xl p-6 shadow-lg hover:bg-black/10 hover:border-black/20 hover:scale-[1.02] transition-all duration-300 text-left w-full">
       <div className="flex items-start gap-4">
-        <div className={`p-3 rounded-lg ${color === 'blue' ? 'bg-blue-100 text-blue-600' : color === 'purple' ? 'bg-purple-100 text-purple-600' : 'bg-green-100 text-green-600'}`}>
-          <Icon size={24} />
+        <div className="p-3 rounded-xl bg-black/10 border border-black/20 group-hover:bg-black/20 transition-all">
+          <Icon size={24} className="text-black" />
         </div>
         <div>
-          <h3 className="font-semibold text-gray-900">{title}</h3>
-          <p className="text-sm text-gray-600 mt-1">{description}</p>
+          <h3 className="font-semibold text-black text-lg">{title}</h3>
+          <p className="text-sm text-gray-600 mt-2">{description}</p>
         </div>
       </div>
-    </Link>
+    </button>
   );
 }
 
 function InfoRow({ label, value, status }) {
   return (
-    <div className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
-      <span className="text-gray-600">{label}</span>
-      <div className="flex items-center gap-2">
+    <div className="flex items-center justify-between py-4 border-b border-black/10 last:border-0">
+      <span className="text-gray-600 font-medium">{label}</span>
+      <div className="flex items-center gap-3">
         {status === 'success' && (
-          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
         )}
-        <span className="font-medium text-gray-900">{value}</span>
+        <span className="font-semibold text-black">{value}</span>
       </div>
     </div>
   );

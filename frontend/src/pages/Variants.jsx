@@ -4,16 +4,18 @@ import { Link } from 'react-router-dom';
 import LoadingSpinner from '../components/LoadingSpinner';
 import  api  from '../services/api';
 import { Search, Filter, ChevronRight, AlertCircle } from 'lucide-react';
+import { PAGINATION } from '../constants';
 
 export default function Variants() {
   const [searchTerm, setSearchTerm] = useState('');
   const [impactFilter, setImpactFilter] = useState('');
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(PAGINATION.DEFAULT_PAGE_SIZE);
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ['variants', page, searchTerm, impactFilter],
+    queryKey: ['variants', page, searchTerm, impactFilter, pageSize],
     queryFn: async () => {
-      let url = `/variants/?page=${page}`;
+      let url = `/variants/?page=${page}&page_size=${pageSize}`;
       if (searchTerm) url += `&search=${searchTerm}`;
       if (impactFilter) url += `&impact=${impactFilter}`;
       const response = await api.get(url);
@@ -24,7 +26,7 @@ export default function Variants() {
   if (isLoading) return <LoadingSpinner />;
 
   const variants = data?.results || [];
-  const totalPages = data?.count ? Math.ceil(data.count / 20) : 1;
+  const totalPages = data?.count ? Math.ceil(data.count / pageSize) : 1;
 
   return (
     <div className="space-y-6">
@@ -36,7 +38,7 @@ export default function Variants() {
 
       {/* Filters */}
       <div className="bg-white rounded-lg shadow-md p-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {/* Search */}
           <div className="relative">
             <Search className="absolute left-3 top-3 text-gray-400" size={20} />
@@ -66,6 +68,22 @@ export default function Variants() {
             <option value="MODERATE">Moderate</option>
             <option value="LOW">Low</option>
             <option value="MODIFIER">Modifier</option>
+          </select>
+
+          {/* Page Size Selector */}
+          <select
+            value={pageSize}
+            onChange={(e) => {
+              setPageSize(parseInt(e.target.value));
+              setPage(1);
+            }}
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+          >
+            {PAGINATION.PAGE_SIZE_OPTIONS.map(size => (
+              <option key={size} value={size}>
+                {size} per page
+              </option>
+            ))}
           </select>
 
           {/* Results Count */}

@@ -21,9 +21,9 @@ export const API_CONFIG = {
 // =============================================================================
 
 export const PAGINATION = {
-  DEFAULT_PAGE_SIZE: 20,
-  PAGE_SIZE_OPTIONS: [20, 50, 100],
-  MAX_PAGE_SIZE: 100,
+  DEFAULT_PAGE_SIZE: 100,
+  PAGE_SIZE_OPTIONS: [50, 100, 500, 1000, 5000],
+  MAX_PAGE_SIZE: 10000,
 };
 
 // =============================================================================

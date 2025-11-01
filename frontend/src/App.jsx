@@ -9,6 +9,7 @@ import Annotations from './pages/Annotations';
 import GalaxyIntegration from './pages/GalaxyIntegration';
 import VariantDetail from './pages/VariantDetail';
 import VariantNetwork from './pages/VariantNetwork';
+import InteractiveVisualization from './components/InteractiveVisualization';
 
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -32,6 +33,7 @@ function App() {
                 <Route path="/variants" element={<Variants />} />
                 <Route path="/variants/:id" element={<VariantDetail />} />
                 <Route path="/network" element={<VariantNetwork />} />
+                <Route path="/visualize" element={<InteractiveVisualization />} />
                 <Route path="/annotations" element={<Annotations />} />
                 <Route path="/galaxy" element={<GalaxyIntegration />} />
               </Routes>
