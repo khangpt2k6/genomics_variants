@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Dna, Network, FileText, TrendingUp, AlertCircle } from 'lucide-react';
 import { variantsApi } from '../services/variants';
 
@@ -8,6 +7,7 @@ export default function Dashboard() {
     totalVariants: 0,
     pathogenicVariants: 0,
     impactCounts: { HIGH: 0, MODERATE: 0, LOW: 0, MODIFIER: 0 },
+    uniqueGenesCount: 0,
     topGenes: []
   });
   const [loading, setLoading] = useState(true);
@@ -33,6 +33,7 @@ export default function Dashboard() {
             LOW: statistics.impact_counts?.LOW || 0,
             MODIFIER: statistics.impact_counts?.MODIFIER || 0,
           },
+          uniqueGenesCount: statistics.unique_genes_count || 0,
           topGenes: statistics.top_genes?.map(gene => ({
             name: gene.name || gene.gene_symbol,
             count: gene.count || gene.variant_count
@@ -40,7 +41,12 @@ export default function Dashboard() {
         };
 
         setStats(transformedStats);
+        console.log('=== DASHBOARD STATISTICS DEBUG ===');
+        console.log('Raw API response:', statistics);
         console.log('Transformed stats:', transformedStats);
+        console.log('Impact counts:', transformedStats.impactCounts);
+        console.log('Unique genes count:', transformedStats.uniqueGenesCount);
+        console.log('Top genes:', transformedStats.topGenes);
       } catch (err) {
         console.error('Error fetching dashboard data:', err);
         setError('Failed to load dashboard data. Please try again later.');
@@ -51,13 +57,6 @@ export default function Dashboard() {
 
     fetchDashboardData();
   }, []);
-
-  const impactData = [
-    { name: 'HIGH', value: stats.impactCounts.HIGH },
-    { name: 'MODERATE', value: stats.impactCounts.MODERATE },
-    { name: 'LOW', value: stats.impactCounts.LOW },
-    { name: 'MODIFIER', value: stats.impactCounts.MODIFIER },
-  ];
 
   if (loading) {
     return (
@@ -112,69 +111,8 @@ export default function Dashboard() {
           <MetricCard
             icon={Network}
             label="Unique Genes"
-            value={stats.topGenes.length}
+            value={stats.uniqueGenesCount}
           />
-        </div>
-
-        {/* Charts */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Impact Distribution */}
-          <div className="backdrop-blur-xl bg-black/5 border border-black/10 rounded-2xl p-8 shadow-lg">
-            <h2 className="text-xl font-semibold text-black mb-6 flex items-center gap-2">
-              <div className="w-1 h-6 bg-black rounded-full"></div>
-              Variant Impact Distribution
-            </h2>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={impactData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#00000020" />
-                <XAxis dataKey="name" stroke="#000" tick={{ fill: '#000' }} />
-                <YAxis stroke="#000" tick={{ fill: '#000' }} />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: 'rgba(255, 255, 255, 0.95)', 
-                    border: '1px solid rgba(0, 0, 0, 0.1)',
-                    borderRadius: '8px',
-                    color: '#000'
-                  }}
-                />
-                <Bar dataKey="value" fill="#000" radius={[8, 8, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-
-          {/* Top Genes */}
-          <div className="backdrop-blur-xl bg-black/5 border border-black/10 rounded-2xl p-8 shadow-lg">
-            <h2 className="text-xl font-semibold text-black mb-6 flex items-center gap-2">
-              <div className="w-1 h-6 bg-black rounded-full"></div>
-              Top Genes by Variant Count
-            </h2>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart
-                data={stats.topGenes}
-                layout="vertical"
-                margin={{ left: 80 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" stroke="#00000020" />
-                <XAxis type="number" stroke="#000" tick={{ fill: '#000' }} />
-                <YAxis 
-                  dataKey="name" 
-                  type="category" 
-                  width={80} 
-                  stroke="#000" 
-                  tick={{ fill: '#000' }}
-                />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: 'rgba(255, 255, 255, 0.95)', 
-                    border: '1px solid rgba(0, 0, 0, 0.1)',
-                    borderRadius: '8px',
-                    color: '#000'
-                  }}
-                />
-                <Bar dataKey="count" fill="#000" radius={[0, 8, 8, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
         </div>
 
         {/* Quick Actions */}

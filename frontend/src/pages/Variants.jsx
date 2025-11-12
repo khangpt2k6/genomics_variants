@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import LoadingSpinner from '../components/LoadingSpinner';
+import NaturalLanguageSearch from '../components/NaturalLanguageSearch';
 import  api  from '../services/api';
-import { Search, Filter, ChevronRight, AlertCircle } from 'lucide-react';
+import { Search, Filter, ChevronRight, AlertCircle, Sparkles } from 'lucide-react';
 import { PAGINATION } from '../constants';
 
 export default function Variants() {
@@ -11,6 +12,7 @@ export default function Variants() {
   const [impactFilter, setImpactFilter] = useState('');
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(PAGINATION.DEFAULT_PAGE_SIZE);
+  const [showNaturalSearch, setShowNaturalSearch] = useState(false);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['variants', page, searchTerm, impactFilter, pageSize],
@@ -31,10 +33,24 @@ export default function Variants() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Variants</h1>
-        <p className="text-gray-600 mt-1">Browse and filter genetic variants</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Variants</h1>
+          <p className="text-gray-600 mt-1">Browse and filter genetic variants</p>
+        </div>
+        <button
+          onClick={() => setShowNaturalSearch(!showNaturalSearch)}
+          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+        >
+          <Sparkles size={18} />
+          {showNaturalSearch ? 'Hide' : 'Show'} AI Search
+        </button>
       </div>
+
+      {/* Natural Language Search */}
+      {showNaturalSearch && (
+        <NaturalLanguageSearch />
+      )}
 
       {/* Filters */}
       <div className="bg-white rounded-lg shadow-md p-6">

@@ -2,6 +2,8 @@ import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import LoadingSpinner from '../components/LoadingSpinner';
+import VariantExplanation from '../components/VariantExplanation';
+import VariantChat from '../components/VariantChat';
 import api   from '../services/api';
 import { ArrowLeft, AlertCircle, CheckCircle } from 'lucide-react';
 
@@ -166,6 +168,21 @@ export default function VariantDetail() {
           </div>
         </div>
       )}
+
+      {/* AI Explanation */}
+      <VariantExplanation variantId={variant.id} />
+
+      {/* AI Chat Assistant */}
+      <VariantChat 
+        variantId={variant.id} 
+        variantInfo={{
+          chromosome: variant.chromosome,
+          position: variant.position,
+          reference_allele: variant.reference_allele,
+          alternate_allele: variant.alternate_allele,
+          gene_symbol: variant.gene_symbol
+        }}
+      />
 
       {/* VCF Data */}
       {variant.vcf_data && Object.keys(variant.vcf_data).length > 0 && (
