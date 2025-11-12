@@ -1,8 +1,9 @@
 import random
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 
 from django.core.management.base import BaseCommand, CommandParser
 from django.db import transaction
+from django.utils import timezone
 
 from faker import Faker
 
@@ -127,6 +128,13 @@ class Command(BaseCommand):
             # Validate to respect model clean() rules
             variant.full_clean(exclude=None)
             variant.save()
+            
+            # Set random created_at date for trend analysis (spread over last 6 months)
+            days_ago = random.randint(0, 180)
+            random_date = timezone.now() - timedelta(days=days_ago)
+            Variant.objects.filter(pk=variant.pk).update(created_at=random_date)
+            variant.refresh_from_db()
+            
             created_variants.append(variant)
 
         self.stdout.write(self.style.SUCCESS(f"Created {len(created_variants)} Variant records."))

@@ -157,6 +157,16 @@ Recent Trends (last 30 days):
         
         daily_counts = df.groupby('date').size().reset_index(name='count')
         
+        unique_dates = daily_counts['date'].nunique()
+        if unique_dates < 2:
+            avg_daily = daily_counts['count'].sum() / max(1, unique_dates)
+            return {
+                "predicted_counts": [avg_daily] * days_ahead,
+                "future_dates": [(datetime.now() + timedelta(days=i+1)).date().isoformat() for i in range(days_ahead)],
+                "trend_direction": "stable",
+                "confidence_interval": [[max(0, avg_daily * 0.8), avg_daily * 1.2]] * days_ahead
+            }
+        
         date_range = pd.date_range(start=daily_counts['date'].min(),
                                  end=daily_counts['date'].max())
         daily_counts = daily_counts.set_index('date').reindex(date_range, fill_value=0).reset_index()
@@ -168,7 +178,13 @@ Recent Trends (last 30 days):
         y = daily_counts['count'].values
         
         if len(X) < 2:
-            return {"error": "Insufficient data points for prediction"}
+            avg_daily = y.mean() if len(y) > 0 else 0
+            return {
+                "predicted_counts": [avg_daily] * days_ahead,
+                "future_dates": [(datetime.now() + timedelta(days=i+1)).date().isoformat() for i in range(days_ahead)],
+                "trend_direction": "stable",
+                "confidence_interval": [[max(0, avg_daily * 0.8), avg_daily * 1.2]] * days_ahead
+            }
         
         try:
             from sklearn.linear_model import LinearRegression

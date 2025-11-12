@@ -78,9 +78,10 @@ class VariantViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'])
     def statistics(self, request):
         """Get variant statistics"""
-        queryset = self.filter_queryset(self.get_queryset())
+        base_queryset = Variant.objects.all()
+        queryset = self.filter_queryset(base_queryset)
         
-        impact_counts_raw = queryset.exclude(impact__isnull=True).values('impact').annotate(count=Count('id'))
+        impact_counts_raw = queryset.exclude(impact__isnull=True).values('impact').annotate(count=Count('id')).order_by()
         formatted_impact_counts = {
             'HIGH': 0,
             'MODERATE': 0,
@@ -90,7 +91,7 @@ class VariantViewSet(viewsets.ModelViewSet):
         for item in impact_counts_raw:
             impact_value = item.get('impact')
             count_value = item.get('count', 0)
-            if impact_value in formatted_impact_counts:
+            if impact_value and impact_value in formatted_impact_counts:
                 formatted_impact_counts[impact_value] = count_value
         
         top_genes = list(
