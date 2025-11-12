@@ -8,6 +8,8 @@ import {
   Zap,
   X,
   BarChart3,
+  TrendingUp,
+  Sparkles,
 } from 'lucide-react';
 
 const menuItems = [
@@ -17,6 +19,8 @@ const menuItems = [
   { icon: BarChart3, label: 'Interactive Visualization', path: '/visualize' },
   { icon: FileText, label: 'Annotations', path: '/annotations' },
   { icon: Zap, label: 'Galaxy Integration', path: '/galaxy' },
+  { icon: TrendingUp, label: 'AI Trend Prediction', path: '/trend-prediction' },
+  { icon: Sparkles, label: 'AI Graph Generation', path: '/ai-graphs' },
 ];
 
 export default function Sidebar({ open, setOpen }) {
