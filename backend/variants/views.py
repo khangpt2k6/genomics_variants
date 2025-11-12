@@ -80,16 +80,22 @@ class VariantViewSet(viewsets.ModelViewSet):
         """Get variant statistics"""
         queryset = self.filter_queryset(self.get_queryset())
         
-        impact_counts = dict(queryset.values_list('impact').annotate(count=Count('id')))
+        impact_counts_raw = queryset.exclude(impact__isnull=True).values('impact').annotate(count=Count('id'))
         formatted_impact_counts = {
-            'HIGH': impact_counts.get('HIGH', 0),
-            'MODERATE': impact_counts.get('MODERATE', 0),
-            'LOW': impact_counts.get('LOW', 0),
-            'MODIFIER': impact_counts.get('MODIFIER', 0),
+            'HIGH': 0,
+            'MODERATE': 0,
+            'LOW': 0,
+            'MODIFIER': 0,
         }
+        for item in impact_counts_raw:
+            impact_value = item.get('impact')
+            count_value = item.get('count', 0)
+            if impact_value in formatted_impact_counts:
+                formatted_impact_counts[impact_value] = count_value
         
         top_genes = list(
-            queryset.values('gene_symbol')
+            queryset.exclude(gene_symbol__isnull=True)
+            .values('gene_symbol')
             .annotate(count=Count('id'))
             .order_by('-count')[:10]
         )
@@ -98,12 +104,15 @@ class VariantViewSet(viewsets.ModelViewSet):
             for g in top_genes if g['gene_symbol']
         ]
         
+        unique_genes_count = queryset.exclude(gene_symbol__isnull=True).values('gene_symbol').distinct().count()
+        
         stats = {
             'total_variants': queryset.count(),
-            'pathogenic_variants': queryset.filter(clinical_significance__significance__in=['pathogenic', 'likely_pathogenic']).count(),
+            'pathogenic_variants': queryset.filter(clinical_significance__significance__in=['pathogenic', 'likely_pathogenic']).distinct().count(),
             'impact_counts': formatted_impact_counts,
+            'unique_genes_count': unique_genes_count,
             'by_chromosome': dict(queryset.values_list('chromosome').annotate(count=Count('id'))),
-            'by_consequence': dict(queryset.values_list('consequence').annotate(count=Count('id'))),
+            'by_consequence': dict(queryset.exclude(consequence__isnull=True).values_list('consequence').annotate(count=Count('id'))),
             'average_quality': queryset.aggregate(avg_quality=Avg('quality_score'))['avg_quality'],
             'drug_target_count': queryset.filter(drug_responses__isnull=False).distinct().count(),
             'top_genes': top_genes_formatted,

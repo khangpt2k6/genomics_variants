@@ -9,11 +9,12 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
-# Load environment variables
-load_dotenv()
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Load environment variables from .env file in the backend directory
+env_path = BASE_DIR / '.env'
+load_dotenv(dotenv_path=env_path)
 LOG_DIR = BASE_DIR / 'logs'
 LOG_DIR.mkdir(parents=True, exist_ok=True)
 DEFAULT_LOG_FILE = LOG_DIR / 'variants_project.log'

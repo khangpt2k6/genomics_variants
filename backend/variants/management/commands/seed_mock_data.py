@@ -34,8 +34,10 @@ class Command(BaseCommand):
     @transaction.atomic
     def handle(self, *args, **options):
         fake = Faker()
-        Faker.seed(42)
-        random.seed(42)
+        import time
+        seed_value = int(time.time()) if options.get("variants", 50) > 100 else 42
+        Faker.seed(seed_value)
+        random.seed(seed_value)
 
         num_variants: int = options["variants"]
         do_flush: bool = options["flush"]
@@ -108,7 +110,7 @@ class Command(BaseCommand):
                 hgvs_c=hgvs_c,
                 hgvs_p=hgvs_p,
                 consequence=random.choice(consequences),
-                impact=random.choice(impacts),
+                impact=random.choice(impacts) if random.random() > 0.1 else None,
                 gnomad_af=g_af,
                 gnomad_af_afr=min(g_afr, 1.0),
                 gnomad_af_amr=min(g_amr, 1.0),
