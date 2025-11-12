@@ -1,12 +1,3 @@
-"""
-LLM Service for Cancer Trend Prediction and Graph Generation
-
-This module provides AI-powered services for:
-- Predicting cancer variant trends
-- Generating graphs and visualizations using LLM
-- Analyzing variant data patterns
-"""
-
 import os
 import json
 import logging
@@ -14,8 +5,6 @@ from datetime import datetime, timedelta
 from typing import Dict, List, Any, Optional
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
 import plotly.graph_objects as go
 import plotly.express as px
 from plotly.utils import PlotlyJSONEncoder
@@ -26,15 +15,12 @@ from langchain_openai import ChatOpenAI
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
 
-from django.conf import settings
 from variants.models import Variant, ClinicalSignificance, DrugResponse
 
 logger = logging.getLogger(__name__)
 
 
 class CancerTrendPredictor:
-    """AI-powered cancer trend prediction service"""
-
     def __init__(self):
         self.llm = ChatOpenAI(
             temperature=0.1,
@@ -43,29 +29,14 @@ class CancerTrendPredictor:
         )
 
     def predict_variant_trends(self, days_ahead: int = 30) -> Dict[str, Any]:
-        """
-        Predict future cancer variant trends using historical data and AI analysis
-
-        Args:
-            days_ahead: Number of days to predict ahead
-
-        Returns:
-            Dictionary containing trend predictions and insights
-        """
         try:
-            # Get historical variant data
             historical_data = self._get_historical_variant_data()
 
             if not historical_data:
                 return {"error": "Insufficient historical data for prediction"}
 
-            # Analyze trends using AI
             trend_analysis = self._analyze_trends_with_llm(historical_data)
-
-            # Generate predictions
             predictions = self._generate_predictions(historical_data, days_ahead)
-
-            # Create trend visualizations
             trend_charts = self._create_trend_visualizations(historical_data, predictions)
 
             return {
@@ -80,8 +51,6 @@ class CancerTrendPredictor:
             return {"error": str(e)}
 
     def _get_historical_variant_data(self) -> List[Dict]:
-        """Retrieve historical variant data for trend analysis"""
-        # Get variants from the last 6 months
         six_months_ago = datetime.now() - timedelta(days=180)
 
         variants = Variant.objects.filter(
@@ -100,12 +69,10 @@ class CancerTrendPredictor:
                 'drug_responses': []
             }
 
-            # Add clinical significance if available
             if hasattr(variant, 'clinical_significance') and variant.clinical_significance.exists():
                 clin_sig = variant.clinical_significance.first()
                 data_point['clinical_significance'] = clin_sig.significance
 
-            # Add drug responses
             drug_responses = variant.drug_responses.all()
             data_point['drug_responses'] = [
                 {
@@ -120,9 +87,6 @@ class CancerTrendPredictor:
         return historical_data
 
     def _analyze_trends_with_llm(self, historical_data: List[Dict]) -> Dict[str, Any]:
-        """Use LLM to analyze trends in the variant data"""
-
-        # Prepare data summary for LLM
         data_summary = self._prepare_data_summary(historical_data)
 
         prompt = PromptTemplate(
@@ -156,7 +120,6 @@ class CancerTrendPredictor:
         try:
             return json.loads(analysis_result)
         except json.JSONDecodeError:
-            # Fallback if LLM doesn't return valid JSON
             return {
                 "key_trends": ["Analysis completed but formatting issue occurred"],
                 "significant_genes": [],
@@ -167,13 +130,11 @@ class CancerTrendPredictor:
             }
 
     def _prepare_data_summary(self, historical_data: List[Dict]) -> str:
-        """Prepare a summary of the data for LLM analysis"""
         df = pd.DataFrame(historical_data)
 
         if df.empty:
             return "No data available for analysis"
 
-        # Group by date and calculate metrics
         daily_stats = df.groupby('date').agg({
             'chromosome': 'count',
             'gene': lambda x: x.value_counts().index[0] if len(x.value_counts()) > 0 else None,
@@ -181,13 +142,8 @@ class CancerTrendPredictor:
             'clinical_significance': lambda x: x.value_counts().to_dict() if x.notna().any() else {}
         }).reset_index()
 
-        # Calculate gene frequencies
         gene_freq = df['gene'].value_counts().head(10).to_dict()
-
-        # Impact distribution
         impact_dist = df['impact'].value_counts().to_dict()
-
-        # Clinical significance distribution
         clin_sig_dist = df['clinical_significance'].value_counts().to_dict()
 
         summary = f"""
@@ -212,29 +168,23 @@ class CancerTrendPredictor:
         return summary
 
     def _generate_predictions(self, historical_data: List[Dict], days_ahead: int) -> Dict[str, Any]:
-        """Generate statistical predictions for future trends"""
         df = pd.DataFrame(historical_data)
 
-        if df.empty or len(df) < 7:  # Need at least a week of data
+        if df.empty or len(df) < 7:
             return {"error": "Insufficient data for prediction"}
 
-        # Convert dates and sort
         df['date'] = pd.to_datetime(df['date'])
         df = df.sort_values('date')
 
-        # Group by date to get daily counts
         daily_counts = df.groupby('date').size().reset_index(name='count')
 
-        # Fill missing dates with 0
         date_range = pd.date_range(start=daily_counts['date'].min(),
                                  end=daily_counts['date'].max())
         daily_counts = daily_counts.set_index('date').reindex(date_range, fill_value=0).reset_index()
         daily_counts.columns = ['date', 'count']
 
-        # Prepare data for regression
         daily_counts['days_since_start'] = (daily_counts['date'] - daily_counts['date'].min()).dt.days
 
-        # Fit linear regression
         X = daily_counts[['days_since_start']]
         y = daily_counts['count']
 
@@ -244,7 +194,6 @@ class CancerTrendPredictor:
         model = LinearRegression()
         model.fit(X_scaled, y)
 
-        # Generate predictions
         future_dates = pd.date_range(start=daily_counts['date'].max() + timedelta(days=1),
                                    periods=days_ahead)
         future_days = np.arange(len(daily_counts), len(daily_counts) + days_ahead).reshape(-1, 1)
@@ -252,7 +201,6 @@ class CancerTrendPredictor:
 
         predictions = model.predict(future_days_scaled)
 
-        # Calculate trend direction
         slope = model.coef_[0]
         if slope > 0.1:
             trend = "increasing"
@@ -269,21 +217,17 @@ class CancerTrendPredictor:
         }
 
     def _calculate_prediction_interval(self, predictions: np.ndarray, historical_std: float) -> List[List[float]]:
-        """Calculate prediction intervals"""
-        # Simple approach: ± 1 standard deviation
         intervals = []
         for pred in predictions:
             intervals.append([max(0, pred - historical_std), pred + historical_std])
         return intervals
 
     def _create_trend_visualizations(self, historical_data: List[Dict], predictions: Dict) -> Dict[str, Any]:
-        """Create visualizations for trend analysis"""
         df = pd.DataFrame(historical_data)
         df['date'] = pd.to_datetime(df['date'])
 
         charts = {}
 
-        # Historical trend chart
         daily_counts = df.groupby('date').size().reset_index(name='count')
 
         fig = go.Figure()
@@ -295,7 +239,6 @@ class CancerTrendPredictor:
             line=dict(color='blue')
         ))
 
-        # Add predictions if available
         if 'future_dates' in predictions and 'predicted_counts' in predictions:
             future_dates = pd.to_datetime(predictions['future_dates'])
             fig.add_trace(go.Scatter(
@@ -315,7 +258,6 @@ class CancerTrendPredictor:
 
         charts['trend_chart'] = json.loads(json.dumps(fig, cls=PlotlyJSONEncoder))
 
-        # Gene frequency chart
         gene_counts = df['gene'].value_counts().head(10)
         fig2 = px.bar(
             x=gene_counts.index,
@@ -328,20 +270,17 @@ class CancerTrendPredictor:
         return charts
 
     def _calculate_confidence_score(self, historical_data: List[Dict]) -> float:
-        """Calculate confidence score for predictions"""
-        if len(historical_data) < 14:  # Less than 2 weeks
+        if len(historical_data) < 14:
             return 0.3
-        elif len(historical_data) < 30:  # Less than a month
+        elif len(historical_data) < 30:
             return 0.6
-        elif len(historical_data) < 90:  # Less than 3 months
+        elif len(historical_data) < 90:
             return 0.8
         else:
             return 0.9
 
 
 class LLMGraphGenerator:
-    """AI-powered graph generation service"""
-
     def __init__(self):
         self.llm = ChatOpenAI(
             temperature=0.2,
@@ -350,27 +289,14 @@ class LLMGraphGenerator:
         )
 
     def generate_graph_from_data(self, data: Dict[str, Any], graph_type: str = "auto") -> Dict[str, Any]:
-        """
-        Generate appropriate graphs for the given data using LLM analysis
-
-        Args:
-            data: Data to visualize
-            graph_type: Type of graph to generate (auto, bar, line, pie, etc.)
-
-        Returns:
-            Dictionary containing graph specifications and recommendations
-        """
         try:
-            # Analyze data structure
             data_analysis = self._analyze_data_structure(data)
 
-            # Determine best graph types
             if graph_type == "auto":
                 recommended_graphs = self._recommend_graph_types(data_analysis)
             else:
                 recommended_graphs = [graph_type]
 
-            # Generate graphs
             graphs = {}
             for g_type in recommended_graphs:
                 graphs[g_type] = self._generate_specific_graph(data, g_type, data_analysis)
@@ -386,7 +312,6 @@ class LLMGraphGenerator:
             return {"error": str(e)}
 
     def _analyze_data_structure(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """Analyze the structure and characteristics of the input data"""
         analysis = {
             "data_types": {},
             "dimensions": {},
@@ -401,7 +326,6 @@ class LLMGraphGenerator:
             if isinstance(value, list) and len(value) > 0:
                 analysis["dimensions"][key] = len(value)
 
-                # Check first few items to determine type
                 sample = value[:min(5, len(value))]
 
                 if all(isinstance(x, (int, float)) for x in sample):
@@ -418,7 +342,6 @@ class LLMGraphGenerator:
                     analysis["categorical_fields"].append(key)
                 elif all(isinstance(x, dict) for x in sample):
                     analysis["data_types"][key] = "complex"
-                    # Analyze nested structure
                     if sample:
                         nested_keys = set()
                         for item in sample:
@@ -431,42 +354,32 @@ class LLMGraphGenerator:
         return analysis
 
     def _recommend_graph_types(self, data_analysis: Dict[str, Any]) -> List[str]:
-        """Recommend appropriate graph types based on data analysis"""
-
         recommendations = []
 
         num_numerical = len(data_analysis["numerical_fields"])
         num_categorical = len(data_analysis["categorical_fields"])
 
-        # Time series if we have temporal data
         if data_analysis["temporal_fields"]:
             recommendations.append("line")
 
-        # Bar charts for categorical data
         if num_categorical > 0:
             recommendations.append("bar")
 
-        # Pie charts for categorical distributions
         if num_categorical == 1 and num_numerical >= 1:
             recommendations.append("pie")
 
-        # Scatter plots for relationships
         if num_numerical >= 2:
             recommendations.append("scatter")
 
-        # Heatmaps for correlations
         if num_numerical >= 3:
             recommendations.append("heatmap")
 
-        # Default to bar if no specific recommendations
         if not recommendations:
             recommendations = ["bar"]
 
-        return recommendations[:3]  # Limit to top 3 recommendations
+        return recommendations[:3]
 
     def _generate_specific_graph(self, data: Dict[str, Any], graph_type: str, analysis: Dict[str, Any]) -> Dict[str, Any]:
-        """Generate a specific type of graph"""
-
         if graph_type == "bar":
             return self._generate_bar_chart(data, analysis)
         elif graph_type == "line":
@@ -478,18 +391,15 @@ class LLMGraphGenerator:
         elif graph_type == "heatmap":
             return self._generate_heatmap(data, analysis)
         else:
-            return self._generate_bar_chart(data, analysis)  # Default fallback
+            return self._generate_bar_chart(data, analysis)
 
     def _generate_bar_chart(self, data: Dict[str, Any], analysis: Dict[str, Any]) -> Dict[str, Any]:
-        """Generate a bar chart specification"""
-        # Find categorical and numerical fields
         cat_field = analysis["categorical_fields"][0] if analysis["categorical_fields"] else None
         num_field = analysis["numerical_fields"][0] if analysis["numerical_fields"] else None
 
         if not cat_field or not num_field:
             return {"error": "Insufficient data for bar chart"}
 
-        # Prepare data for Plotly
         fig = go.Figure()
 
         if isinstance(data[cat_field], list) and isinstance(data[num_field], list):
@@ -513,18 +423,14 @@ class LLMGraphGenerator:
         }
 
     def _generate_line_chart(self, data: Dict[str, Any], analysis: Dict[str, Any]) -> Dict[str, Any]:
-        """Generate a line chart specification"""
-        # Look for temporal or sequential data
         x_field = None
         y_field = analysis["numerical_fields"][0] if analysis["numerical_fields"] else None
 
-        # Try to find a temporal field
         for field in analysis["temporal_fields"]:
             if field in data:
                 x_field = field
                 break
 
-        # If no temporal field, use first available field as x
         if not x_field:
             all_fields = list(data.keys())
             x_field = all_fields[0] if all_fields else None
@@ -556,7 +462,6 @@ class LLMGraphGenerator:
         }
 
     def _generate_pie_chart(self, data: Dict[str, Any], analysis: Dict[str, Any]) -> Dict[str, Any]:
-        """Generate a pie chart specification"""
         cat_field = analysis["categorical_fields"][0] if analysis["categorical_fields"] else None
         num_field = analysis["numerical_fields"][0] if analysis["numerical_fields"] else None
 
@@ -584,7 +489,6 @@ class LLMGraphGenerator:
         }
 
     def _generate_scatter_plot(self, data: Dict[str, Any], analysis: Dict[str, Any]) -> Dict[str, Any]:
-        """Generate a scatter plot specification"""
         if len(analysis["numerical_fields"]) < 2:
             return {"error": "Need at least 2 numerical fields for scatter plot"}
 
@@ -615,13 +519,11 @@ class LLMGraphGenerator:
         }
 
     def _generate_heatmap(self, data: Dict[str, Any], analysis: Dict[str, Any]) -> Dict[str, Any]:
-        """Generate a heatmap specification"""
         if len(analysis["numerical_fields"]) < 3:
             return {"error": "Need at least 3 numerical fields for heatmap"}
 
-        # Create correlation matrix
         numerical_data = {}
-        for field in analysis["numerical_fields"][:5]:  # Limit to 5 fields
+        for field in analysis["numerical_fields"][:5]:
             if field in data and isinstance(data[field], list):
                 numerical_data[field] = data[field]
 
@@ -653,7 +555,6 @@ class LLMGraphGenerator:
         }
 
     def _generate_visualization_recommendations(self, analysis: Dict[str, Any]) -> List[str]:
-        """Generate recommendations for data visualization"""
         recommendations = []
 
         if analysis["temporal_fields"]:
@@ -674,6 +575,5 @@ class LLMGraphGenerator:
         return recommendations
 
 
-# Global instances
 trend_predictor = CancerTrendPredictor()
 graph_generator = LLMGraphGenerator()

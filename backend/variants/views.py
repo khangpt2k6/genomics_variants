@@ -6,7 +6,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Q, Count, Avg
 from django.shortcuts import get_object_or_404
 
-from .models import Variant, ClinicalSignificance, DrugResponse, COSMICData, VariantAnnotation
+from .models import Variant, ClinicalSignificance, DrugResponse, COSMICData, VariantAnnotation, CancerTrendPrediction
 from .serializers import (
     VariantSerializer, 
     ClinicalSignificanceSerializer, 
